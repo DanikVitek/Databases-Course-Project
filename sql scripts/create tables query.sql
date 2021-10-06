@@ -6,7 +6,8 @@ create table if not exists `course_project`.`users`(
     email varchar(254) not null unique,
     is_admin bool not null default false,
     registration_time timestamp not null default current_timestamp,
-    constraint account_pk primary key (id)
+    constraint account_pk primary key (id),
+    constraint email_chk check(email like '%@%')
 );
 create table if not exists `course_project`.`categories`(
 	id int not null auto_increment,
@@ -40,7 +41,7 @@ create table if not exists `course_project`.`comments`(
 create table if not exists `course_project`.`comment_responses`(
 	parent_id bigint not null,
     response_id bigint not null,
-    constraint comment_response_pk primary key (parent_id, response_idcategoriescategories),
+    constraint comment_response_pk primary key (parent_id, response_id),
     constraint parent_comment_fk foreign key (parent_id) references `course_project`.`comments` (id) on delete cascade on update cascade,
     constraint response_comment_fk foreign key (response_id) references `course_project`.`comments` (id) on delete cascade on update cascade
 );
