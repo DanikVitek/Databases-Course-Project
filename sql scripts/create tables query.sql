@@ -4,6 +4,7 @@ create table if not exists `course_project`.`users`(
     first_name varchar(50) not null,
     last_name varchar(50) not null,
     email varchar(254) not null unique,
+    `password` varchar(1000) not null,
     is_admin bool not null default false,
     registration_time timestamp not null default current_timestamp,
     constraint account_pk primary key (id),
@@ -20,6 +21,7 @@ create table if not exists `course_project`.`plugins`(
 	plugin_description text,
     category_id int null,
     publication_time timestamp not null default current_timestamp,
+    `file` longblob not null unique,
     constraint plugin_pk primary key (id),
     constraint plugins_categories_fk foreign key (category_id) references `course_project`.`categories` (id) on delete set null on update cascade
 );
