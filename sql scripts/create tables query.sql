@@ -21,7 +21,8 @@ create table if not exists `course_project`.`plugins`(
 	plugin_description text,
     category_id int null,
     publication_time timestamp not null default current_timestamp,
-    `file` longblob not null unique,
+    upload_state enum('Processing', 'Accepted', 'Denied'),
+    `file` longblob not null,
     constraint plugin_pk primary key (id),
     constraint plugins_categories_fk foreign key (category_id) references `course_project`.`categories` (id) on delete set null on update cascade
 );
