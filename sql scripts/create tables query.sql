@@ -1,3 +1,5 @@
+create schema if not exists `course_project`;
+
 create table if not exists `course_project`.`users`(
 	id bigint not null auto_increment,
     nickname varchar(50) not null unique,
@@ -5,7 +7,7 @@ create table if not exists `course_project`.`users`(
     last_name varchar(50) not null,
     email varchar(254) not null unique,
     `password` varchar(1000) not null,
-    is_admin bool not null default false,
+    `role` enum('user', 'moderator', 'admin') not null default 'user',
     registration_time timestamp not null default current_timestamp,
     constraint account_pk primary key (id),
     constraint email_chk check(email like '%@%')
@@ -32,6 +34,13 @@ create table if not exists `course_project`.`plugins_authors`(
     constraint plugin_author_pk primary key (user_id, plugin_id),
     constraint author_users_fk foreign key (user_id) references `course_project`.`users` (id) on delete cascade on update cascade,
     constraint plugins_fk foreign key (plugin_id) references `course_project`.`plugins` (id) on delete cascade on update cascade
+);
+create table if not exists `course_project`.`purchased_plugins`(
+	user_id bigint not null,
+    plugin_id bigint not null,
+    constraint purchased_plugin_pk primary key (user_id, plugin_id),
+    constraint purchase_user_fk foreign key (user_id) references `course_project`.`users` (id),
+    constraint purchase_plugin_fk foreign key (plugin_id) references `course_project`.`plugins` (id)
 );
 create table if not exists `course_project`.`comments`(
 	id bigint not null auto_increment,
