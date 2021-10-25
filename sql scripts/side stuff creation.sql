@@ -6,7 +6,7 @@ for each row set @total_users = @total_users - 1;
 
 set @total_plugins = 0;
 create trigger total_plugins_increment after insert on `course_project`.`plugins`
-for each row set @total_plugins= @total_plugins+ 1;
+for each row set @total_plugins= @total_plugins + 1;
 create trigger total_plugins_decrement after insert on `course_project`.`plugins`
 for each row set @total_plugins = @total_plugins - 1;
 
