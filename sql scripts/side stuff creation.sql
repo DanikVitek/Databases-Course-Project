@@ -6,7 +6,7 @@ for each row set @total_users = @total_users - 1;
 
 set @total_plugins = 0;
 create trigger total_plugins_increment after insert on `course_project`.`plugins`
-for each row set @total_plugins= @total_plugins + 1;
+for each row set @total_plugins = @total_plugins + 1;
 create trigger total_plugins_decrement after insert on `course_project`.`plugins`
 for each row set @total_plugins = @total_plugins - 1;
 
@@ -52,5 +52,10 @@ begin
 		set @indx = @indx  + 1;
 		until @indx = json_length(pl_authors)
 	end repeat;
+end//
+
+create procedure count_plugins ()
+begin
+	select count(1) from `course_project`.`plugins`;
 end//
 delimiter ;
