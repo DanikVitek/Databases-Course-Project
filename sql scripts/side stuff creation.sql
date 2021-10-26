@@ -54,8 +54,11 @@ begin
 	end repeat;
 end//
 
-create procedure count_plugins ()
+create function count_plugins ()
+returns bigint
 begin
-	select count(1) from `course_project`.`plugins`;
+	set @amount = 0;
+	select count(1) from `course_project`.`plugins` into @amount;
+	return @amount;
 end//
 delimiter ;
