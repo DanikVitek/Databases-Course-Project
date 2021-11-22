@@ -1,10 +1,18 @@
 package com.danikvitek.MCPluginMarketplace;
 
+import com.danikvitek.MCPluginMarketplace.configuration.JWTAuthorizationFilter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Arrays;
 
@@ -15,17 +23,20 @@ public class McPluginMarketplaceApplication {
 		SpringApplication.run(McPluginMarketplaceApplication.class, args);
 	}
 
-//	@Bean
-//	public CommandLineRunner commandLineRunner(ApplicationContext context) {
-//		return args -> {
-//			System.out.println("Let's inspect the beans provided by Spring Boot:");
-//
-//			String[] beanNames = context.getBeanDefinitionNames();
-//			Arrays.sort(beanNames);
-//			for (String beanName : beanNames) {
-//				System.out.println(beanName);
-//			}
-//		};
-//	}
+	@EnableWebSecurity
+	@Configuration
+	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.csrf().disable()
+					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and()
+					.addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+					.authorizeRequests()
+					.antMatchers(HttpMethod.POST, "/login").permitAll()
+					.anyRequest().authenticated();
+		}
+	}
 
 }
