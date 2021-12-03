@@ -6,7 +6,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Entity(name = "plugin")
 @Table(name = "plugins")
@@ -24,7 +23,7 @@ public class Plugin {
     @Column(name = "title", nullable = false, unique = true, length = 200)
     private String title;
 
-    @Column(name = "plugin_description")
+    @Column(name = "description")
     @Lob
     @Setter
     @Getter
