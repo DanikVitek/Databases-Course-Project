@@ -8,7 +8,6 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Blob;
 import java.sql.Timestamp;
 
 @Getter
@@ -22,16 +21,16 @@ public final class PluginVersion {
     @NotNull
     @Setter
     @Lob
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "upload_state", nullable = false)
-    private UploadState uploadState = UploadState.PROCESSING;
+    private UploadState uploadState = UploadState.Processing;
 
     @NotNull
     @Setter
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "file", nullable = false)
-    private Blob file;
+    private byte[] file;
 
     @NotNull
     @Column(name = "upload_time", nullable = false, updatable = false)
@@ -41,11 +40,10 @@ public final class PluginVersion {
     @Getter
     @ToString
     public enum UploadState {
-        PROCESSING((byte) 0, "Processing"),
-        ACCEPTED((byte) 1, "Accepted"),
-        DENIED((byte) 2, "Denied");
+        Processing((byte) 0),
+        Accepted((byte) 1),
+        Denied((byte) 2);
         
         private final byte id;
-        private final String value;
     }
 }

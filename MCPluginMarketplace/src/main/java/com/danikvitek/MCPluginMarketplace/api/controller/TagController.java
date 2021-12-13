@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.net.URI;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,14 +28,23 @@ public final class TagController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Tag> show(@PathVariable long id) {
-        Optional<Tag> fetchedTag = pluginService.fetchTagById(id);
-        return fetchedTag.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            Tag tag = pluginService.fetchTagById(id);
+            return ResponseEntity.ok(tag);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public @NotNull ResponseEntity<Tag> create(@Valid @RequestBody @NotNull TagDto tag) {
+    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull TagDto tag) {
         try {
-            Optional<Tag> existingTag = pluginService.fetchTagByTitle(tag.getTitle());
+            Optional<Tag> existingTag;
+            try {
+                existingTag = Optional.of(pluginService.fetchTagByTitle(tag.getTitle()));
+            } catch (IllegalArgumentException e) {
+                existingTag = Optional.empty();
+            }
             long id = existingTag.isEmpty()
                     ? pluginService.createTag(tag.getTitle())
                     : existingTag.get().getId();
@@ -50,6 +57,7 @@ public final class TagController {
 
     @DeleteMapping("/{id}")
     public @NotNull ResponseEntity<Void> delete(@PathVariable long id) {
+        pluginService.deleteTag(id);
         return ResponseEntity.noContent().build();
     }
 }

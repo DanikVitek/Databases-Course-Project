@@ -12,17 +12,17 @@ import java.util.Objects;
 
 @Getter
 @Embeddable
-public final class PluginAuthorId implements Serializable {
+public class PluginAuthorId implements Serializable {
     private static final long serialVersionUID = -4952025658042852772L;
     
-    @Positive
     @NotNull
+    @Positive
     @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
     
     @Positive
     @NotNull
-    @Column(name = "plugin_id", nullable = false, updatable = false)
+    @Column(name = "plugin_id", nullable = false)
     private Long pluginId;
 
     @Override

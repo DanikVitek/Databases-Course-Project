@@ -28,7 +28,7 @@ public final class Comment {
 
     @NotBlank
     @NotEmpty
-    @Length(min = 1)
+    @Length(max = 300)
     @NotNull
     @Setter
     @Column(name = "content", nullable = false, length = 300)
