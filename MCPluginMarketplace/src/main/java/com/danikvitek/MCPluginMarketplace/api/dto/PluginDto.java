@@ -1,6 +1,7 @@
 package com.danikvitek.MCPluginMarketplace.api.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -12,11 +13,13 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PluginDto implements Serializable {
+@Builder
+public final class PluginDto implements Serializable {
+    @Positive
+    private Long id;
+    
     @NotBlank
-    @NotEmpty
     @Length(max = 200)
-    @NotNull
     private String title;
 
     @Length(min = 20)
@@ -24,8 +27,6 @@ public class PluginDto implements Serializable {
     private String description;
 
     @NotBlank
-    @NotEmpty
-    @NotNull
     @Length(max = 30)
     private String categoryTitle;
 

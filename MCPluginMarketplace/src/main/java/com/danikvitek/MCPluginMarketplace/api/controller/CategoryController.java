@@ -1,7 +1,7 @@
 package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.CategoryDto;
-import com.danikvitek.MCPluginMarketplace.repo.model.Category;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;

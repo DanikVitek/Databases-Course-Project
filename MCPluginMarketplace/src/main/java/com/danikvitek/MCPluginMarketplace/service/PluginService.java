@@ -1,10 +1,9 @@
 package com.danikvitek.MCPluginMarketplace.service;
 
-import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
-import com.danikvitek.MCPluginMarketplace.repo.model.Category;
-import com.danikvitek.MCPluginMarketplace.repo.model.Plugin;
-import com.danikvitek.MCPluginMarketplace.repo.model.Tag;
-import com.danikvitek.MCPluginMarketplace.repo.model.User;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Category;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Plugin;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.User;
 import com.danikvitek.MCPluginMarketplace.repo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +13,7 @@ import scala.NotImplementedError;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +21,6 @@ public final class PluginService {
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
     private final PluginRepository pluginRepository;
-    private final PluginAuthorRepository pluginAuthorRepository;
     private final UserRepository userRepository;
 
     // Categories
@@ -92,16 +90,12 @@ public final class PluginService {
                 .orElseThrow(() -> new IllegalArgumentException("Plugin not fount"));
     }
     
-    public @NotNull List<SimpleUserDto> fetchAuthorsById(long pluginId) throws IllegalArgumentException {
-        return pluginAuthorRepository.findAllById_PluginId(pluginId).stream()
-//                .map(pa -> userRepository.findById(pa.getId().getUserId()).get())
-                .map(u -> SimpleUserDto.builder()
-                        .username(u.getUsername())
-                        .firstName(u.getFirstName())
-                        .lastName(u.getLastName())
-                        .email(u.getEmail())
-                        .role(u.getRole())
-                        .build()
-        ).collect(Collectors.toList());
+    public @NotNull Set<User> fetchAuthorsByPluginId(long pluginId) throws IllegalArgumentException {
+        Plugin plugin = pluginRepository.findById(pluginId)
+                .orElseThrow(() -> new IllegalStateException("Plugin not found"));
+        return plugin.getAuthors();
+//        return userRepository.findByAuthoredPlugin(
+//                pluginRepository.findById(pluginId)
+//                        .orElseThrow(() -> new IllegalStateException("Plugin not found")));
     }
 }

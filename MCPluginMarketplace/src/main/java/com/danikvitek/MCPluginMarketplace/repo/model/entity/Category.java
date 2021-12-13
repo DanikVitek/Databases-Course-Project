@@ -1,6 +1,7 @@
-package com.danikvitek.MCPluginMarketplace.repo.model;
+package com.danikvitek.MCPluginMarketplace.repo.model.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -11,23 +12,20 @@ import javax.validation.constraints.Positive;
 
 @Getter
 @Entity
-@Table(name = "tags", indexes = {
+@Table(name = "categories", indexes = {
         @Index(name = "title", columnList = "title", unique = true)
 })
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public final class Tag {
+public final class Category {
     @Positive
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
-    private Long id;
+    private Integer id;
     
-    @NotEmpty
     @NotBlank
-    @Length(min = 1, max = 30)
+    @NotEmpty
     @NotNull
+    @Length(max = 30)
     @Setter
     @Column(name = "title", nullable = false, length = 30)
     private String title;

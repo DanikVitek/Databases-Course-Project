@@ -1,7 +1,7 @@
 package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.TagDto;
-import com.danikvitek.MCPluginMarketplace.repo.model.Tag;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,14 +23,14 @@ public final class TagController {
     private final PluginService pluginService;
 
     @GetMapping
-    public @NotNull ResponseEntity<List<Tag>> index() {
-        return ResponseEntity.ok(pluginService.fetchAllTags());
+    public @NotNull ResponseEntity<List<TagDto>> index() {
+        return ResponseEntity.ok(pluginService.fetchAllTags().stream().map(Tag::mapToDto).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Tag> show(@PathVariable long id) {
+    public ResponseEntity<TagDto> show(@PathVariable long id) {
         try {
-            Tag tag = pluginService.fetchTagById(id);
+            TagDto tag = pluginService.fetchTagById(id).mapToDto();
             return ResponseEntity.ok(tag);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();

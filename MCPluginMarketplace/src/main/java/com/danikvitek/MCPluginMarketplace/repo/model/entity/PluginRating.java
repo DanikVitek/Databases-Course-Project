@@ -1,4 +1,4 @@
-package com.danikvitek.MCPluginMarketplace.repo.model;
+package com.danikvitek.MCPluginMarketplace.repo.model.entity;
 
 import com.danikvitek.MCPluginMarketplace.repo.model.embedded.PluginRatingId;
 import lombok.Getter;

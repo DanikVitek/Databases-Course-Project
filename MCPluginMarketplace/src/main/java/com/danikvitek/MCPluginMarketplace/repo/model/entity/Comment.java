@@ -1,20 +1,18 @@
-package com.danikvitek.MCPluginMarketplace.repo.model;
+package com.danikvitek.MCPluginMarketplace.repo.model.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Getter
 @Entity
 @Table(name = "comments")
-public final class Comment {
+public class Comment {
     @Positive
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,18 +21,19 @@ public final class Comment {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
-    @NotBlank
-    @NotEmpty
-    @Length(max = 300)
     @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "plugin_id", nullable = false, updatable = false)
+    private Plugin plugin;
+
+    @NotBlank
     @Setter
     @Column(name = "content", nullable = false, length = 300)
     private String content;
 
-    @NotNull
     @Column(name = "publication_time", nullable = false, updatable = false)
-    private Timestamp publicationTime;
+    private Instant publicationTime;
 }

@@ -1,4 +1,4 @@
-package com.danikvitek.MCPluginMarketplace.repo.model;
+package com.danikvitek.MCPluginMarketplace.repo.model.entity;
 
 import lombok.Getter;
 import lombok.Setter;

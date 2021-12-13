@@ -1,6 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.repo.repository;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.Tag;
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
