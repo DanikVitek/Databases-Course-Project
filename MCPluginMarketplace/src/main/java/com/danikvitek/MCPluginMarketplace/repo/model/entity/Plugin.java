@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -57,42 +58,41 @@ public final class Plugin implements Serializable {
     @Digits(integer = 5, fraction = 2)
     @PositiveOrZero
     @Column(name = "price", nullable = false, precision = 5, scale = 2)
+    @Builder.Default
     private BigDecimal price = BigDecimal.valueOf(0);
 
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
             name = "plugin_authors",
-//            foreignKey = @ForeignKey(name = "plugin_id"),
-//            inverseForeignKey = @ForeignKey(name = "user_id"),
             joinColumns = @JoinColumn(name = "plugin_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )
     @ToString.Exclude
+    @Builder.Default
     private Set<User> authors = new LinkedHashSet<>();
 
-    public void addAuthor(User author) {
-        authors.add(author);
-        author.getAuthoredPlugins().add(this);
-    }
+//    public void addAuthor(User author) {
+//        authors.add(author);
+//        author.getAuthoredPlugins().add(this);
+//    }
+//
+//    public void removeAuthor(User author) {
+//        authors.remove(author);
+//        author.getAuthoredPlugins().remove(this);
+//    }
+//
+//    public void removeAuthors() {
+//        for (User author: new LinkedHashSet<>(authors))
+//            removeAuthor(author);
+//    }
 
-    public void removeAuthor(User author) {
-        authors.remove(author);
-        author.getAuthoredPlugins().remove(this);
-    }
-
-    public void removeAuthors() {
-        for (User author: new LinkedHashSet<>(authors))
-            removeAuthor(author);
-    }
-
-    public PluginDto mapToDto() {
-        return PluginDto.builder()
-                .id(getId())
-                .title(getTitle())
-                .description(getDescription())
-                .categoryTitle(getCategory().getTitle())
-                .icon(getIcon())
-                .price(getPrice())
-                .build();
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "plugin_tags",
+            joinColumns = @JoinColumn(name = "plugin_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
+    )
+    @ToString.Exclude
+    @Builder.Default
+    private Set<Tag> tags = new LinkedHashSet<>();
 }

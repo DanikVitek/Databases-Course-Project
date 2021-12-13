@@ -24,13 +24,13 @@ public final class TagController {
 
     @GetMapping
     public @NotNull ResponseEntity<List<TagDto>> index() {
-        return ResponseEntity.ok(pluginService.fetchAllTags().stream().map(Tag::mapToDto).collect(Collectors.toList()));
+        return ResponseEntity.ok(pluginService.fetchAllTags().stream().map(TagDto::mapFromTag).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDto> show(@PathVariable long id) {
         try {
-            TagDto tag = pluginService.fetchTagById(id).mapToDto();
+            TagDto tag = TagDto.mapFromTag(pluginService.fetchTagById(id));
             return ResponseEntity.ok(tag);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -47,7 +47,7 @@ public final class TagController {
                 existingTag = Optional.empty();
             }
             long id = existingTag.isEmpty()
-                    ? pluginService.createTag(tag.getTitle())
+                    ? pluginService.createTag(tag.getTitle()).getId()
                     : existingTag.get().getId();
             String location = String.format("/tags/%d", id);
             return ResponseEntity.created(URI.create(location)).build();

@@ -1,5 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.api.dto;
 
+import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,4 +24,11 @@ public final class TagDto implements Serializable {
     @NotBlank
     @Length(min = 1, max = 30)
     private String title;
+
+    public static TagDto mapFromTag(Tag tag) {
+        return TagDto.builder()
+                .id(tag.getId())
+                .title(tag.getTitle())
+                .build();
+    }
 }

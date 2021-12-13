@@ -26,7 +26,7 @@ public final class UserController {
     public @NotNull ResponseEntity<List<SimpleUserDto>> index(@PathVariable int page) {
         if (page >= 0) {
             List<SimpleUserDto> users = userRepository.findAll(Pageable.ofSize(5).withPage(page))
-                    .map(User::mapToSimpleDto).toList();
+                    .map(SimpleUserDto::mapFromUser).toList();
             return ResponseEntity.ok(users);
         }
         else return ResponseEntity.badRequest().build();
@@ -36,7 +36,7 @@ public final class UserController {
     public @NotNull ResponseEntity<List<SimpleUserDto>> index(@PathVariable int page, @RequestParam int size) {
         if (page >= 0 && 1 <= size && size <= 20) {
             List<SimpleUserDto> users = userRepository.findAll(Pageable.ofSize(size).withPage(page))
-                    .map(User::mapToSimpleDto).toList();
+                    .map(SimpleUserDto::mapFromUser).toList();
             return ResponseEntity.ok(users);
         }
         else return ResponseEntity.badRequest().build();

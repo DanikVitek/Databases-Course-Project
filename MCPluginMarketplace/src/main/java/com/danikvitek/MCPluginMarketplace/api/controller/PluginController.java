@@ -23,7 +23,8 @@ public final class PluginController {
     @GetMapping("/{page}")
     public @NotNull ResponseEntity<List<PluginDto>> index(@PathVariable int page) {
         if (page >= 0) {
-            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, 5).stream().map(Plugin::mapToDto).collect(Collectors.toList());
+            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, 5).stream()
+                    .map(PluginDto::mapFromPlugin).collect(Collectors.toList());
             return ResponseEntity.ok(plugins);
         }
         else return ResponseEntity.badRequest().build();
@@ -32,7 +33,8 @@ public final class PluginController {
     @GetMapping(value = "/{page}", params = {"size"})
     public @NotNull ResponseEntity<List<PluginDto>> indexWithSize(@PathVariable int page, @RequestParam int size) {
         if (page >= 0 && 1 <= size && size <= 20) {
-            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, size).stream().map(Plugin::mapToDto).collect(Collectors.toList());
+            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, size).stream()
+                    .map(PluginDto::mapFromPlugin).collect(Collectors.toList());
             return ResponseEntity.ok(plugins);
         }
         else return ResponseEntity.badRequest().build();
@@ -40,20 +42,33 @@ public final class PluginController {
 
     @GetMapping("/id/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
-        try {
-            PluginDto plugin = pluginService.fetchPluginById(id).mapToDto();
-            return ResponseEntity.ok(plugin);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+        if (id >= 1) {
+            try {
+                PluginDto plugin = PluginDto.mapFromPlugin(pluginService.fetchPluginById(id));
+                return ResponseEntity.ok(plugin);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.notFound().build();
+            }
         }
+        else return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/id/{id}/authors")
     public @NotNull ResponseEntity<Set<SimpleUserDto>> showAuthors(@PathVariable long id) {
-        Set<SimpleUserDto> authors = pluginService.fetchAuthorsByPluginId(id)
-                .stream()
-                .map(User::mapToSimpleDto)
-                .collect(Collectors.toSet());
-        return ResponseEntity.ok(authors);
+        if (id >= 1) {
+            Set<SimpleUserDto> authors = pluginService.fetchAuthorsByPluginId(id)
+                    .stream()
+                    .map(SimpleUserDto::mapFromUser)
+                    .collect(Collectors.toSet());
+            return ResponseEntity.ok(authors);
+        }
+        else return ResponseEntity.badRequest().build();
     }
+
+//    @PostMapping("/plugin")
+//    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto plugin) {
+//        try {
+//
+//        }
+//    }
 }

@@ -1,5 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.service;
 
+import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.repo.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.repo.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
@@ -14,6 +15,7 @@ import scala.NotImplementedError;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,6 @@ public final class PluginService {
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
     private final PluginRepository pluginRepository;
-    private final UserRepository userRepository;
 
     // Categories
 
@@ -69,9 +70,9 @@ public final class PluginService {
                 .orElseThrow(() -> new IllegalStateException("Tag not found"));
     }
 
-    public long createTag(@NotNull String title) {
+    public @NotNull Tag createTag(@NotNull String title) {
         Tag tag = Tag.builder().title(title).build();
-        return tagRepository.save(tag).getId();
+        return tagRepository.save(tag);
     }
 
     public void deleteTag(long id) {
@@ -97,5 +98,18 @@ public final class PluginService {
 //        return userRepository.findByAuthoredPlugin(
 //                pluginRepository.findById(pluginId)
 //                        .orElseThrow(() -> new IllegalStateException("Plugin not found")));
+    }
+
+    public @NotNull Plugin createPlugin(@NotNull PluginDto pluginDto) throws IllegalArgumentException {
+        String categoryTitle = pluginDto.getCategoryTitle();
+        Plugin plugin = pluginDto.mapToPlugin();
+        plugin.setCategory(
+                categoryRepository
+                        .findByTitle(categoryTitle)
+                        .orElseThrow(() -> new IllegalArgumentException(String.format("Category %s not found", categoryTitle))));
+        plugin.setTags(pluginDto.getTags().stream()
+                .map(t -> tagRepository.findByTitle(t).orElse(createTag(t)))
+                .collect(Collectors.toSet()));
+        return pluginRepository.save(plugin);
     }
 }
