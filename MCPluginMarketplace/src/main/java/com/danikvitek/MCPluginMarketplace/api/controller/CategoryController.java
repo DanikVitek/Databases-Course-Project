@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import scala.Function0;
+import scala.util.Try;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -39,13 +41,9 @@ public final class CategoryController {
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull CategoryDto category) {
         try {
-            Optional<Category> existingCategory;
-            try {
-                existingCategory = Optional.of(pluginService.fetchCategoryByTitle(category.getTitle()));
-            } catch (IllegalArgumentException e) {
-                existingCategory = Optional.empty();
-            }
-            int id = existingCategory.isEmpty()
+            Try<Category> existingCategory = 
+                    Try.apply(() -> pluginService.fetchCategoryByTitle(category.getTitle()));
+            int id = existingCategory.isFailure()
                     ? pluginService.createCategory(category.getTitle())
                     : existingCategory.get().getId();
             String location = String.format("/categories/%d", id);
