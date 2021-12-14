@@ -1,6 +1,5 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.embedded;
+package com.danikvitek.MCPluginMarketplace.data.model.embedded;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Hibernate;

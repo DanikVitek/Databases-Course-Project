@@ -1,4 +1,4 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.embedded;
+package com.danikvitek.MCPluginMarketplace.data.model.embedded;
 
 import lombok.Getter;
 import org.hibernate.Hibernate;

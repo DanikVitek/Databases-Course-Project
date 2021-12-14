@@ -1,6 +1,5 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -10,7 +9,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

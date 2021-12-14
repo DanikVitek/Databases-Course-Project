@@ -1,6 +1,6 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.embedded.SupportedGameVersionId;
+import com.danikvitek.MCPluginMarketplace.data.model.embedded.SupportedGameVersionId;
 import lombok.Getter;
 import lombok.Setter;
 

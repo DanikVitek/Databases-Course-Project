@@ -1,20 +1,22 @@
 package com.danikvitek.MCPluginMarketplace.api.dto;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.entity.Plugin;
-import com.danikvitek.MCPluginMarketplace.repo.model.entity.Tag;
-import com.danikvitek.MCPluginMarketplace.repo.repository.TagRepository;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Builder
 public final class PluginDto implements Serializable {
     @Positive
@@ -42,30 +44,4 @@ public final class PluginDto implements Serializable {
     private Set<String> authors;
 
     private Set<String> tags;
-
-    public static PluginDto mapFromPlugin(@org.jetbrains.annotations.NotNull Plugin plugin) {
-        return PluginDto.builder()
-                .id(plugin.getId())
-                .title(plugin.getTitle())
-                .description(plugin.getDescription())
-                .categoryTitle(plugin.getCategory().getTitle())
-                .icon(plugin.getIcon())
-                .price(plugin.getPrice())
-                .tags(plugin.getTags().stream().map(Tag::getTitle).collect(Collectors.toSet()))
-                .build();
-    }
-
-    public Plugin mapToPlugin() {
-        return mapToPlugin(true);
-    }
-    
-    public Plugin mapToPlugin(boolean includeId) {
-        Plugin.PluginBuilder builder = Plugin.builder();
-        if (includeId) builder.id(id);
-        return builder.title(title)
-                .description(description)
-                .icon(icon)
-                .price(price)
-                .build();
-    }
 }

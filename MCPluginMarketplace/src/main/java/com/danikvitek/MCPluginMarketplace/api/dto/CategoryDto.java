@@ -19,8 +19,7 @@ import java.io.Serializable;
 public final class CategoryDto implements Serializable {
     @Positive
     private Integer id;
-    
-    @NotBlank
+   
     @Length(max = 30)
     private String title;
 }

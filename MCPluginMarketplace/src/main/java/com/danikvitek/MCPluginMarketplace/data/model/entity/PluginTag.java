@@ -1,6 +1,6 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.embedded.PluginTagId;
+import com.danikvitek.MCPluginMarketplace.data.model.embedded.PluginTagId;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,6 +1,6 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.embedded.PluginRatingId;
+import com.danikvitek.MCPluginMarketplace.data.model.embedded.PluginRatingId;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -10,7 +10,6 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 
 @Getter
 @Entity

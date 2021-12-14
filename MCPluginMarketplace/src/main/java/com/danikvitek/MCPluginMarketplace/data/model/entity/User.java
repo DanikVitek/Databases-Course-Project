@@ -1,9 +1,10 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -44,4 +45,7 @@ public final class User {
     @Setter(AccessLevel.NONE)
     @Column(name = "registration_time", nullable = false, updatable = false)
     private Instant registrationTime;
+    
+    @ManyToMany(mappedBy = "authors")
+    private Set<Plugin> authoredPlugins;
 }

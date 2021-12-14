@@ -1,6 +1,6 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.embedded.PluginDenyReasonId;
+import com.danikvitek.MCPluginMarketplace.data.model.embedded.PluginDenyReasonId;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;

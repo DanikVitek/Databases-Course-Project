@@ -2,14 +2,13 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
-import com.danikvitek.MCPluginMarketplace.repo.model.entity.Plugin;
-import com.danikvitek.MCPluginMarketplace.repo.model.entity.User;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
+import com.danikvitek.MCPluginMarketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import scala.NotImplementedError;
 import scala.util.Try;
 
 import javax.validation.Valid;
@@ -23,44 +22,33 @@ import java.util.stream.Collectors;
 @RequestMapping("/plugins")
 public final class PluginController {
     private final PluginService pluginService;
+    private final UserService userService;
 
-    @GetMapping("/{page}")
-    public @NotNull ResponseEntity<List<PluginDto>> index(@PathVariable int page) {
-        if (page >= 0) {
-            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, 5).stream()
-                    .map(PluginDto::mapFromPlugin).collect(Collectors.toList());
-            return ResponseEntity.ok(plugins);
-        }
-        else return ResponseEntity.badRequest().build();
-    }
-
-    @GetMapping(value = "/{page}", params = {"size"})
-    public @NotNull ResponseEntity<List<PluginDto>> indexWithSize(@PathVariable int page, @RequestParam int size) {
+    @GetMapping(params = { "page", "size" }) 
+    public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page, 
+                                                          @RequestParam(defaultValue = "5") int size) {
         if (page >= 0 && 1 <= size && size <= 20) {
-            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, size).stream()
-                    .map(PluginDto::mapFromPlugin).collect(Collectors.toList());
+            List<PluginDto> plugins = pluginService.fetchAllPlugins(page, size)
+                    .map(pluginService::pluginToDto).getContent();
             return ResponseEntity.ok(plugins);
         }
         else return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
-        if (id >= 1) {
-            return Try.apply(() -> {
-                PluginDto plugin = PluginDto.mapFromPlugin(pluginService.fetchPluginById(id));
-                return ResponseEntity.ok(plugin);
-            }).getOrElse(() -> ResponseEntity.notFound().build());
-        }
-        else return ResponseEntity.badRequest().build();
+        return Try.apply(() -> {
+            PluginDto pluginDto = pluginService.pluginToDto(pluginService.fetchPluginById(id));
+            return ResponseEntity.ok(pluginDto);
+        }).getOrElse(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/id/{id}/authors")
+    @GetMapping("/{id}/authors")
     public @NotNull ResponseEntity<Set<SimpleUserDto>> showAuthors(@PathVariable long id) {
         if (id >= 1) {
             Set<SimpleUserDto> authors = pluginService.fetchAuthorsByPluginId(id)
                     .stream()
-                    .map(SimpleUserDto::mapFromUser)
+                    .map(userService::userToSimpleDto)
                     .collect(Collectors.toSet());
             return ResponseEntity.ok(authors);
         }
@@ -69,17 +57,19 @@ public final class PluginController {
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
-        try {
+        return Try.apply(() -> {
             Plugin plugin = pluginService.createPlugin(pluginDto);
-            String location = String.format("/plugins/id/%d", plugin.getId());
+            String location = String.format("/plugins/%d", plugin.getId());
             return ResponseEntity.created(URI.create(location)).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        }).getOrElse(() -> ResponseEntity.notFound().build());
     }
     
-    @PatchMapping("/id/{id}")
-    public @NotNull ResponseEntity<Void> update(@Valid @RequestBody PluginDto pluginDto) {
-        throw new NotImplementedError();
+    @PatchMapping("/{id}")
+    public @NotNull ResponseEntity<Void> update(@PathVariable long id, @Valid @RequestBody PluginDto pluginDto) {
+        return Try.apply(() -> {
+            pluginService.updatePlugin(id, pluginDto);
+            String location = String.format("/plugins/%d", id);
+            return ResponseEntity.created(URI.create(location)).build();
+        }).getOrElse(() -> ResponseEntity.notFound().build());
     }
 }

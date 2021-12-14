@@ -1,4 +1,4 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.embedded;
+package com.danikvitek.MCPluginMarketplace.data.model.embedded;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,9 +22,7 @@ public final class SupportedGameVersionId implements Serializable {
     private Long pluginId;
     
     @NotBlank
-    @NotEmpty
     @Length(max = 20)
-    @NotNull
     @Setter
     @Column(name = "plugin_version_title", nullable = false, length = 20)
     private String pluginVersionTitle;

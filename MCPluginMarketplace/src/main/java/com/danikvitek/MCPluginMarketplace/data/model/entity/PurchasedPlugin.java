@@ -1,6 +1,6 @@
-package com.danikvitek.MCPluginMarketplace.repo.model.entity;
+package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import com.danikvitek.MCPluginMarketplace.repo.model.embedded.PurchasedPluginId;
+import com.danikvitek.MCPluginMarketplace.data.model.embedded.PurchasedPluginId;
 import lombok.Getter;
 
 import javax.persistence.Column;
