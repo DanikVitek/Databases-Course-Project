@@ -25,16 +25,15 @@ public final class PluginDto implements Serializable {
     private String title;
 
     @Length(min = 20)
-    @NotNull
+    @NotBlank
     private String description;
 
-    @NotBlank
     @Length(max = 30)
+    @NotBlank
     private String categoryTitle;
 
     private byte[] icon;
 
-    @NotNull
     @Digits(integer = 5, fraction = 2)
     @PositiveOrZero
     @Builder.Default
@@ -55,11 +54,15 @@ public final class PluginDto implements Serializable {
                 .tags(plugin.getTags().stream().map(Tag::getTitle).collect(Collectors.toSet()))
                 .build();
     }
-    
+
     public Plugin mapToPlugin() {
-        return Plugin.builder()
-                .id(id)
-                .title(title)
+        return mapToPlugin(true);
+    }
+    
+    public Plugin mapToPlugin(boolean includeId) {
+        Plugin.PluginBuilder builder = Plugin.builder();
+        if (includeId) builder.id(id);
+        return builder.title(title)
                 .description(description)
                 .icon(icon)
                 .price(price)

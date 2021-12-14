@@ -102,7 +102,7 @@ public final class PluginService {
 
     public @NotNull Plugin createPlugin(@NotNull PluginDto pluginDto) throws IllegalArgumentException {
         String categoryTitle = pluginDto.getCategoryTitle();
-        Plugin plugin = pluginDto.mapToPlugin();
+        Plugin plugin = pluginDto.mapToPlugin(false);
         plugin.setCategory(
                 categoryRepository
                         .findByTitle(categoryTitle)

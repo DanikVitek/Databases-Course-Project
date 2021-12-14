@@ -9,7 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import scala.NotImplementedError;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,10 +68,19 @@ public final class PluginController {
         else return ResponseEntity.badRequest().build();
     }
 
-//    @PostMapping("/plugin")
-//    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto plugin) {
-//        try {
-//
-//        }
-//    }
+    @PostMapping
+    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
+        try {
+            Plugin plugin = pluginService.createPlugin(pluginDto);
+            String location = String.format("/plugins/id/%d", plugin.getId());
+            return ResponseEntity.created(URI.create(location)).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @PatchMapping("/id/{id}")
+    public @NotNull ResponseEntity<Void> update(@Valid @RequestBody PluginDto pluginDto) {
+        throw new NotImplementedError();
+    }
 }

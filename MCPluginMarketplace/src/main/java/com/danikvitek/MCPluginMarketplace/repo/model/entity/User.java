@@ -15,7 +15,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Getter
 @Setter
-public class User {
+public final class User {
     @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
