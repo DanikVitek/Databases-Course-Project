@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import scala.NotImplementedError;
+import scala.util.Try;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -46,12 +47,10 @@ public final class PluginController {
     @GetMapping("/id/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
         if (id >= 1) {
-            try {
+            return Try.apply(() -> {
                 PluginDto plugin = PluginDto.mapFromPlugin(pluginService.fetchPluginById(id));
                 return ResponseEntity.ok(plugin);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.notFound().build();
-            }
+            }).getOrElse(() -> ResponseEntity.notFound().build());
         }
         else return ResponseEntity.badRequest().build();
     }

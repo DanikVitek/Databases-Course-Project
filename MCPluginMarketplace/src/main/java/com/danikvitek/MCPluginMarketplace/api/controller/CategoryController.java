@@ -30,17 +30,14 @@ public final class CategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Category> show(@PathVariable int id) {
-        try {
-            Category category = pluginService.fetchCategoryById(id);
-            return ResponseEntity.ok(category);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return Try
+                .apply(() -> pluginService.fetchCategoryById(id))
+                .getOrElse(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull CategoryDto category) {
-        try {
+        return Try.apply(() -> {
             Try<Category> existingCategory = 
                     Try.apply(() -> pluginService.fetchCategoryByTitle(category.getTitle()));
             int id = existingCategory.isFailure()
@@ -48,8 +45,6 @@ public final class CategoryController {
                     : existingCategory.get().getId();
             String location = String.format("/categories/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
-        } catch (ConstraintViolationException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        }).getOrElse(() -> ResponseEntity.badRequest().build());
     }
 }

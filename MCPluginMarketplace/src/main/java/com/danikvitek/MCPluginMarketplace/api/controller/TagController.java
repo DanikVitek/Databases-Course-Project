@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import scala.util.Try;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -29,31 +30,23 @@ public final class TagController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDto> show(@PathVariable long id) {
-        try {
+        return Try.apply(() -> {
             TagDto tag = TagDto.mapFromTag(pluginService.fetchTagById(id));
             return ResponseEntity.ok(tag);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        }).getOrElse(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull TagDto tag) {
-        try {
-            Optional<Tag> existingTag;
-            try {
-                existingTag = Optional.of(pluginService.fetchTagByTitle(tag.getTitle()));
-            } catch (IllegalArgumentException e) {
-                existingTag = Optional.empty();
-            }
-            long id = existingTag.isEmpty()
+        return Try.apply(() -> {
+            Try<Tag> existingTag = 
+                    Try.apply(() -> pluginService.fetchTagByTitle(tag.getTitle()));
+            long id = existingTag.isFailure()
                     ? pluginService.createTag(tag.getTitle()).getId()
                     : existingTag.get().getId();
             String location = String.format("/tags/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
-        } catch (ConstraintViolationException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        }).getOrElse(() -> ResponseEntity.badRequest().build());
     }
 
     @DeleteMapping("/{id}")
