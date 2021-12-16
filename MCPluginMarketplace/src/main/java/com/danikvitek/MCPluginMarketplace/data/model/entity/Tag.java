@@ -1,39 +1,58 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-@Getter
-@Setter
-@Entity
-@Table(name = "tags", indexes = {
-        @Index(name = "title", columnList = "title", unique = true)
-})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public final class Tag {
-    @Setter(AccessLevel.NONE)
-    @Positive
-    @Id
+@Entity
+@Table(name = "tags", schema = "course_project")
+public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Id
+    @Column(name = "id", nullable = false)
     private Long id;
-    
-    @NotBlank
-    @Length(min = 1, max = 30)
+    @Basic
     @Column(name = "title", nullable = false, length = 30)
     private String title;
 
-    @ManyToMany(mappedBy = "tags")
-    @ToString.Exclude
-    @Builder.Default
-    private Set<Plugin> taggedPlugins = new LinkedHashSet<>();
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tag tag = (Tag) o;
+
+        if (id != null ? !id.equals(tag.id) : tag.id != null) return false;
+        if (title != null ? !title.equals(tag.title) : tag.title != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        return result;
+    }
 }

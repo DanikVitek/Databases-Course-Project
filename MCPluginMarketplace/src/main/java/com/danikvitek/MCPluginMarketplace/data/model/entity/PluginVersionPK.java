@@ -4,28 +4,31 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "game_versions", schema = "course_project")
-public class GameVersion {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class PluginVersionPK implements Serializable {
+    @Column(name = "plugin_id", nullable = false)
     @Id
-    @Column(name = "id", nullable = false)
-    private Short id;
-    @Basic
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long pluginId;
     @Column(name = "version_title", nullable = false, length = 20)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String versionTitle;
 
-    public Short getId() {
-        return id;
+    public Long getPluginId() {
+        return pluginId;
     }
 
-    public void setId(Short id) {
-        this.id = id;
+    public void setPluginId(Long pluginId) {
+        this.pluginId = pluginId;
     }
 
     public String getVersionTitle() {
@@ -41,9 +44,9 @@ public class GameVersion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GameVersion that = (GameVersion) o;
+        PluginVersionPK that = (PluginVersionPK) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
         if (versionTitle != null ? !versionTitle.equals(that.versionTitle) : that.versionTitle != null) return false;
 
         return true;
@@ -51,7 +54,7 @@ public class GameVersion {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = pluginId != null ? pluginId.hashCode() : 0;
         result = 31 * result + (versionTitle != null ? versionTitle.hashCode() : 0);
         return result;
     }

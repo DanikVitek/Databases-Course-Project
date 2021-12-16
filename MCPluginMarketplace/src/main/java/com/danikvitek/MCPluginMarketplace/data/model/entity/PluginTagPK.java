@@ -4,22 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "plugin_tags", schema = "course_project")
-@IdClass(PluginTagPK.class)
-public class PluginTag {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+public class PluginTagPK implements Serializable {
     @Column(name = "plugin_id", nullable = false)
-    private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long pluginId;
     @Column(name = "tag_id", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tagId;
 
     public Long getPluginId() {
@@ -43,10 +44,10 @@ public class PluginTag {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PluginTag pluginTag = (PluginTag) o;
+        PluginTagPK that = (PluginTagPK) o;
 
-        if (pluginId != null ? !pluginId.equals(pluginTag.pluginId) : pluginTag.pluginId != null) return false;
-        if (tagId != null ? !tagId.equals(pluginTag.tagId) : pluginTag.tagId != null) return false;
+        if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
+        if (tagId != null ? !tagId.equals(that.tagId) : that.tagId != null) return false;
 
         return true;
     }

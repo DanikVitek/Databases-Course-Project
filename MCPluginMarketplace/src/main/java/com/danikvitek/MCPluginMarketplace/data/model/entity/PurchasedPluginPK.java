@@ -4,21 +4,24 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "banned_users", schema = "course_project")
-public class BannedUser {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+public class PurchasedPluginPK implements Serializable {
     @Column(name = "user_id", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-    @Basic
-    @Column(name = "reason", nullable = true, length = 200)
-    private String reason;
+    @Column(name = "plugin_id", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long pluginId;
 
     public Long getUserId() {
         return userId;
@@ -28,12 +31,12 @@ public class BannedUser {
         this.userId = userId;
     }
 
-    public String getReason() {
-        return reason;
+    public Long getPluginId() {
+        return pluginId;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setPluginId(Long pluginId) {
+        this.pluginId = pluginId;
     }
 
     @Override
@@ -41,10 +44,10 @@ public class BannedUser {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        BannedUser that = (BannedUser) o;
+        PurchasedPluginPK that = (PurchasedPluginPK) o;
 
         if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
-        if (reason != null ? !reason.equals(that.reason) : that.reason != null) return false;
+        if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
 
         return true;
     }
@@ -52,7 +55,7 @@ public class BannedUser {
     @Override
     public int hashCode() {
         int result = userId != null ? userId.hashCode() : 0;
-        result = 31 * result + (reason != null ? reason.hashCode() : 0);
+        result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
         return result;
     }
 }

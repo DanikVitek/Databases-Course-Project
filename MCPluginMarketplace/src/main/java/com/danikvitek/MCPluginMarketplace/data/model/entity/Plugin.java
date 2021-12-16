@@ -1,96 +1,114 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
 import java.util.Set;
 
-@Getter
-@Setter
-@ToString
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "plugins", indexes = {
-        @Index(name = "title", columnList = "title", unique = true)
-})
-public final class Plugin implements Serializable {
-    @Setter(AccessLevel.NONE)
-    @Positive
-    @Id
+@Table(name = "plugins", schema = "course_project")
+public class Plugin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Id
+    @Column(name = "id", nullable = false)
     private Long id;
-
-    @NotBlank
-    @Length(max = 200)
-    @Column(name = "title", nullable = false, unique = true, length = 200)
+    
+    @Basic
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
-
-    @ToString.Exclude
-    @Length(min = 20)
-    @NotNull
+    
     @Lob
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "description")
     private String description;
-
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ToString.Exclude
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "icon")
+    
+    @Basic
+    @Column(name = "category_id", nullable = true)
+    private Short categoryId;
+    
+    @Basic
+    @Column(name = "icon", nullable = true)
     private byte[] icon;
+    
+    @Basic
+    @Column(name = "price", nullable = false, precision = 2)
+    private BigDecimal price;
+    
+    public Long getId() {
+        return id;
+    }
 
-    @NotNull
-    @Digits(integer = 5, fraction = 2)
-    @PositiveOrZero
-    @Column(name = "price", nullable = false, precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal price = BigDecimal.valueOf(0);
+    public String getTitle() {
+        return title;
+    }
 
-    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinTable(
-            name = "plugin_authors",
-            joinColumns = @JoinColumn(name = "plugin_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
-    )
-    @ToString.Exclude
-    @Builder.Default
-    private Set<User> authors = new LinkedHashSet<>();
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-//    public void addAuthor(User author) {
-//        authors.add(author);
-//        author.getAuthoredPlugins().add(this);
-//    }
-//
-//    public void removeAuthor(User author) {
-//        authors.remove(author);
-//        author.getAuthoredPlugins().remove(this);
-//    }
-//
-//    public void removeAuthors() {
-//        for (User author: new LinkedHashSet<>(authors))
-//            removeAuthor(author);
-//    }
+    public String getDescription() {
+        return description;
+    }
 
-    @ManyToMany
-    @JoinTable(
-            name = "plugin_tags",
-            joinColumns = @JoinColumn(name = "plugin_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
-    )
-    @ToString.Exclude
-    @Builder.Default
-    private Set<Tag> tags = new LinkedHashSet<>();
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Short getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Short categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public byte[] getIcon() {
+        return icon;
+    }
+
+    public void setIcon(byte[] icon) {
+        this.icon = icon;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Plugin plugin = (Plugin) o;
+
+        if (id != null ? !id.equals(plugin.id) : plugin.id != null) return false;
+        if (title != null ? !title.equals(plugin.title) : plugin.title != null) return false;
+        if (description != null ? !description.equals(plugin.description) : plugin.description != null) return false;
+        if (categoryId != null ? !categoryId.equals(plugin.categoryId) : plugin.categoryId != null) return false;
+        if (!Arrays.equals(icon, plugin.icon)) return false;
+        if (price != null ? !price.equals(plugin.price) : plugin.price != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(icon);
+        result = 31 * result + (price != null ? price.hashCode() : 0);
+        return result;
+    }
 }

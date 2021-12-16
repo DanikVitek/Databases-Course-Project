@@ -2,10 +2,7 @@ package com.danikvitek.MCPluginMarketplace.service;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.TagDto;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Tag;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.*;
 import com.danikvitek.MCPluginMarketplace.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +12,8 @@ import org.springframework.stereotype.Service;
 import scala.NotImplementedError;
 import scala.util.Try;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +23,8 @@ public final class PluginService {
     private final CategoryRepository categoryRepository;
     private final PluginRepository pluginRepository;
     private final UserRepository userRepository;
+    private final PluginAuthorRepository pluginAuthorRepository;
+    private final PluginTagRepository pluginTagRepository;
 
     private final UserService userService;
 
@@ -38,20 +35,21 @@ public final class PluginService {
     }
 
     public int createCategory(String title) {
-        throw new NotImplementedError();
+        Category category = Category.builder().title(title).build();
+        return categoryRepository.save(category).getId();
     }
 
-    public void updateCategory(int id, @NotNull String title) throws IllegalArgumentException {
+    public void updateCategory(short id, @NotNull String title) throws IllegalArgumentException {
         Optional<Category> category = categoryRepository.findById(id);
         category.orElseThrow(() -> new IllegalStateException("Category not found"))
                 .setTitle(title);
     }
 
-    public void deleteCategory(int id) {
+    public void deleteCategory(short id) {
         categoryRepository.deleteById(id);
     }
 
-    public @NotNull Category fetchCategoryById(int id) throws IllegalArgumentException {
+    public @NotNull Category fetchCategoryById(short id) throws IllegalArgumentException {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Category not found"));
     }
@@ -105,15 +103,32 @@ public final class PluginService {
     }
 
     public @NotNull Plugin createPlugin(@NotNull PluginDto pluginDto) throws IllegalArgumentException {
-        String categoryTitle = pluginDto.getCategoryTitle();
         Plugin plugin = pluginDtoToPlugin(pluginDto, false);
-        plugin.setCategory(
-                categoryRepository
-                        .findByTitle(categoryTitle)
-                        .orElseThrow(() -> new IllegalArgumentException(String.format("Category %s not found", categoryTitle))));
-        plugin.setTags(pluginDto.getTags().stream()
-                .map(t -> tagRepository.findByTitle(t).orElse(createTag(t)))
-                .collect(Collectors.toSet()));
+        pluginDto.getTags().forEach(tagTitle -> {
+            Tag tag;
+            try {
+                tag = createTag(tagTitle);
+            } catch (Exception e) {
+                tag = fetchTagByTitle(tagTitle);
+            }
+            try {
+                PluginTag pluginTag = PluginTag.builder()
+                        .pluginId(plugin.getId())
+                        .tagId(tag.getId())
+                        .build();
+                pluginTagRepository.save(pluginTag);
+            } catch (Exception ignored) {}
+        });
+        pluginDto.getAuthors().forEach(authorUsername -> {
+            try {
+                User author = userService.fetchByUsername(authorUsername);
+                PluginAuthor pluginAuthor = PluginAuthor.builder()
+                        .pluginId(plugin.getId())
+                        .userId(author.getId())
+                        .build();
+                pluginAuthorRepository.save(pluginAuthor);
+            } catch (Exception ignored) {}
+        });
         return pluginRepository.save(plugin);
     }
 
@@ -121,21 +136,58 @@ public final class PluginService {
     public void updatePlugin(long id, @NotNull PluginDto pluginDto) throws IllegalArgumentException {
         Plugin plugin = fetchPluginById(id);
 
-        Set<Tag> tags = pluginDto.getTags() != null
-                ? pluginDto.getTags().stream().map(this::fetchTagByTitle).collect(Collectors.toSet())
-                : null;
-        if (tags != null && plugin.getTags() != tags) plugin.setTags(tags);
-
-        Set<User> authors = pluginDto.getAuthors() != null
-                ? pluginDto.getAuthors().stream().map(userService::fetchByUsername).collect(Collectors.toSet())
-                : null;
-        if (authors != null && plugin.getAuthors() != authors) plugin.setAuthors(authors);
+        // icon, price, title
+        String title = pluginDto.getTitle();
+        if (title != null && !Objects.equals(plugin.getTitle(), title)) plugin.setTitle(title);
 
         String description = pluginDto.getDescription();
         if (description != null && !Objects.equals(plugin.getDescription(), description))
             plugin.setDescription(description);
 
-        // todo: continue implementation
+        Category category = pluginDto.getCategoryTitle() != null
+                ? fetchCategoryByTitle(pluginDto.getCategoryTitle())
+                : null;
+        if (category != null && !Objects.equals(plugin.getCategoryId(), category.getId()))
+            plugin.setCategoryId(category.getId());
+
+        byte[] icon = pluginDto.getIcon();
+        if (icon != null && plugin.getIcon() != icon) plugin.setIcon(icon);
+
+        BigDecimal price = pluginDto.getPrice();
+        if (price != null && !Objects.equals(plugin.getPrice(), price)) plugin.setPrice(price);
+
+        Set<User> authors = pluginDto.getAuthors() != null
+                ? pluginDto.getAuthors().stream()
+                .map(username -> Try.apply(() -> userService.fetchByUsername(username)))
+                .filter(Try::isSuccess)
+                .map(Try::get)
+                .collect(Collectors.toSet())
+                : null;
+        if (authors != null && userRepository.findByAuthoredPlugin(plugin.getId()) != authors)
+            authors.forEach(user -> {
+                PluginAuthor pluginAuthor = PluginAuthor.builder()
+                        .pluginId(plugin.getId())
+                        .userId(user.getId())
+                        .build();
+                pluginAuthorRepository.save(pluginAuthor);
+            });
+
+        Set<Tag> tags = pluginDto.getTags() != null
+                ? pluginDto.getTags().stream()
+                .map(tagTitle -> {
+                    Try<Tag> tryTag = Try.apply(() -> fetchTagByTitle(tagTitle));
+                    return tryTag.getOrElse(() -> createTag(tagTitle));
+                })
+                .collect(Collectors.toSet())
+                : null;
+        if (tags != null && tagRepository.showForPlugin(plugin.getId()) != tags)
+            tags.forEach(tag -> {
+                PluginTag pluginTag = PluginTag.builder()
+                        .pluginId(plugin.getId())
+                        .tagId(tag.getId())
+                        .build();
+                pluginTagRepository.save(pluginTag);
+            });
     }
 
     public PluginDto pluginToDto(@NotNull Plugin plugin) {
@@ -143,11 +195,15 @@ public final class PluginService {
                 .id(plugin.getId())
                 .title(plugin.getTitle())
                 .description(plugin.getDescription())
-                .categoryTitle(plugin.getCategory().getTitle())
+                .categoryTitle(fetchCategoryById(plugin.getCategoryId()).getTitle())
                 .icon(plugin.getIcon())
                 .price(plugin.getPrice())
-                .authors(plugin.getAuthors().stream().map(User::getUsername).collect(Collectors.toSet()))
-                .tags(plugin.getTags().stream().map(Tag::getTitle).collect(Collectors.toSet()))
+                .authors(userRepository.findByAuthoredPlugin(plugin.getId()).stream()
+                        .map(User::getUsername)
+                        .collect(Collectors.toSet()))
+                .tags(tagRepository.showForPlugin(plugin.getId()).stream()
+                        .map(Tag::getTitle)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -172,19 +228,9 @@ public final class PluginService {
         return builder
                 .title(pluginDto.getTitle())
                 .description(pluginDto.getDescription())
-                .category(fetchCategoryByTitle(pluginDto.getCategoryTitle()))
+                .categoryId(fetchCategoryByTitle(pluginDto.getCategoryTitle()).getId())
                 .icon(pluginDto.getIcon())
                 .price(pluginDto.getPrice())
-                .authors(pluginDto.getAuthors().stream()
-                        .map(a -> Try.apply(() -> userService.fetchByUsername(a)))
-                        .filter(Try::isSuccess)
-                        .map(Try::get)
-                        .collect(Collectors.toSet()))
-                .tags(pluginDto.getTags().stream()
-                        .map(t -> Try
-                                .apply(() -> fetchTagByTitle(t))
-                                .getOrElse(() -> createTag(t)))
-                        .collect(Collectors.toSet()))
                 .build();
     }
 

@@ -1,9 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.api.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Digits;
@@ -16,7 +13,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public final class PluginDto implements Serializable {
     @Positive

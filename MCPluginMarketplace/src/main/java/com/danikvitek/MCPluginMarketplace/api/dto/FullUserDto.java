@@ -11,7 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
-import java.time.Instant;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
@@ -40,5 +40,5 @@ public final class FullUserDto implements Serializable {
     @Builder.Default
     private String role = Role.user.toString();
 
-    private Instant registrationTime;
+    private Timestamp registrationTime;
 }

@@ -21,7 +21,7 @@ public final class UserController {
     private final UserService userService;
     private final PluginService pluginService;
 
-    @GetMapping(params = { "page", "size" })
+    @GetMapping
     public @NotNull ResponseEntity<List<SimpleUserDto>> index(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "5") int size) {
         if (page >= 0 && 1 <= size && size <= 20) {

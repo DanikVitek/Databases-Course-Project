@@ -14,6 +14,7 @@ import scala.util.Try;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,15 +25,14 @@ public final class PluginController {
     private final PluginService pluginService;
     private final UserService userService;
 
-    @GetMapping(params = { "page", "size" }) 
-    public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page, 
+    @GetMapping
+    public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size) {
         if (page >= 0 && 1 <= size && size <= 20) {
             List<PluginDto> plugins = pluginService.fetchAllPlugins(page, size)
                     .map(pluginService::pluginToDto).getContent();
             return ResponseEntity.ok(plugins);
-        }
-        else return ResponseEntity.badRequest().build();
+        } else return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/{id}")
@@ -51,21 +51,29 @@ public final class PluginController {
                     .map(userService::userToSimpleDto)
                     .collect(Collectors.toSet());
             return ResponseEntity.ok(authors);
-        }
-        else return ResponseEntity.badRequest().build();
+        } else return ResponseEntity.badRequest().build();
     }
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
-        return Try.apply(() -> {
+//        return Try.apply(() -> {
+//            Plugin plugin = pluginService.createPlugin(pluginDto);
+//            String location = String.format("/plugins/%d", plugin.getId());
+//            return ResponseEntity.created(URI.create(location)).build();
+//        }).getOrElse(() -> ResponseEntity.notFound().build());
+        try {
             Plugin plugin = pluginService.createPlugin(pluginDto);
             String location = String.format("/plugins/%d", plugin.getId());
             return ResponseEntity.created(URI.create(location)).build();
-        }).getOrElse(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            System.out.println("my caught exception:\t" + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
-    
+
     @PatchMapping("/{id}")
-    public @NotNull ResponseEntity<Void> update(@PathVariable long id, @Valid @RequestBody PluginDto pluginDto) {
+    public @NotNull ResponseEntity<Void> update(@PathVariable long id,
+                                                @Valid @RequestBody PluginDto pluginDto) {
         return Try.apply(() -> {
             pluginService.updatePlugin(id, pluginDto);
             String location = String.format("/plugins/%d", id);

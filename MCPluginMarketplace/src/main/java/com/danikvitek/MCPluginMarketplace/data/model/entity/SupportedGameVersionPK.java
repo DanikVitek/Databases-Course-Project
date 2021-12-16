@@ -4,26 +4,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "supported_game_versions", schema = "course_project")
-@IdClass(SupportedGameVersionPK.class)
-public class SupportedGameVersion {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+public class SupportedGameVersionPK implements Serializable {
     @Column(name = "plugin_id", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
     @Column(name = "plugin_version_title", nullable = false, length = 20)
-    private String pluginVersionTitle;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String pluginVersionTitle;
     @Column(name = "game_version_id", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short gameVersionId;
 
     public Long getPluginId() {
@@ -55,7 +56,7 @@ public class SupportedGameVersion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SupportedGameVersion that = (SupportedGameVersion) o;
+        SupportedGameVersionPK that = (SupportedGameVersionPK) o;
 
         if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
         if (pluginVersionTitle != null ? !pluginVersionTitle.equals(that.pluginVersionTitle) : that.pluginVersionTitle != null)

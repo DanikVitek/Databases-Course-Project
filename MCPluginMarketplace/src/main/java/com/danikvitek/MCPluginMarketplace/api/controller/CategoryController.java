@@ -26,7 +26,7 @@ public final class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> show(@PathVariable int id) {
+    public ResponseEntity<Category> show(@PathVariable short id) {
         return Try
                 .apply(() -> pluginService.fetchCategoryById(id))
                 .getOrElse(() -> ResponseEntity.notFound().build());
@@ -46,7 +46,7 @@ public final class CategoryController {
     }
     
     @PatchMapping("/{id}")
-    public @NotNull ResponseEntity<Void> update(@PathVariable int id, 
+    public @NotNull ResponseEntity<Void> update(@PathVariable short id, 
                                                 @Valid @RequestBody @NotNull CategoryDto categoryDto) {
         try {
             pluginService.updateCategory(id, categoryDto.getTitle());
@@ -59,7 +59,7 @@ public final class CategoryController {
     }
     
     @DeleteMapping("/{id}")
-    public @NotNull ResponseEntity<Void> delete(@PathVariable int id) {
+    public @NotNull ResponseEntity<Void> delete(@PathVariable short id) {
         pluginService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
