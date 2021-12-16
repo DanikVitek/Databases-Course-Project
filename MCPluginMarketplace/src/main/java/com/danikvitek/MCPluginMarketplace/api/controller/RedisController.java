@@ -25,10 +25,15 @@ public class RedisController {
     }
 
     @GetMapping("/{key}")
-    public ResponseEntity<String> getValue(@PathVariable String key) {
+    public ResponseEntity<RedisDto> getValue(@PathVariable String key) {
         try {
             String value = redisService.get(key);
-            return ResponseEntity.ok(value);
+            return ResponseEntity.ok(
+                    RedisDto.builder()
+                            .value(value)
+                            .key(key)
+                            .build()
+            );
         } catch (IllegalArgumentException e) {
             log.info("/redis/" + key + ":", e);
             return ResponseEntity.notFound().build();

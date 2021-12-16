@@ -6,12 +6,14 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 @Getter
 public class RedisDto implements Serializable {
     @NotBlank
     private String key;
-    
+
     @NotBlank
     private String value;
 }
