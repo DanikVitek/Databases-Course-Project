@@ -5,6 +5,7 @@ import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")

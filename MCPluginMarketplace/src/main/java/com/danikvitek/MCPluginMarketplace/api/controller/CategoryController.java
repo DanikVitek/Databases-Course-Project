@@ -5,6 +5,7 @@ import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.service.CategoryService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/categories")
@@ -29,7 +31,14 @@ public final class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<Category> show(@PathVariable short id) {
         return Try
-                .apply(() -> categoryService.fetchById(id))
+                .apply(() -> {
+                    try {
+                        return categoryService.fetchById(id);
+                    } catch (Exception e) {
+                        log.debug("/categories/" + id + ":", e);
+                        throw e;
+                    }
+                })
                 .getOrElse(() -> ResponseEntity.notFound().build());
     }
 
