@@ -2,6 +2,7 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.CategoryDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
+import com.danikvitek.MCPluginMarketplace.service.CategoryService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -18,17 +19,17 @@ import java.util.List;
 @RequestMapping("/categories")
 public final class CategoryController {
 
-    private final PluginService pluginService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public @NotNull ResponseEntity<List<Category>> index() {
-        return ResponseEntity.ok(pluginService.fetchAllCategories());
+        return ResponseEntity.ok(categoryService.fetchAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Category> show(@PathVariable short id) {
         return Try
-                .apply(() -> pluginService.fetchCategoryById(id))
+                .apply(() -> categoryService.fetchById(id))
                 .getOrElse(() -> ResponseEntity.notFound().build());
     }
 
@@ -36,9 +37,9 @@ public final class CategoryController {
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull CategoryDto categoryDto) {
         return Try.apply(() -> {
             Try<Category> existingCategory = 
-                    Try.apply(() -> pluginService.fetchCategoryByTitle(categoryDto.getTitle()));
+                    Try.apply(() -> categoryService.fetchByTitle(categoryDto.getTitle()));
             int id = existingCategory.isFailure()
-                    ? pluginService.createCategory(categoryDto.getTitle())
+                    ? categoryService.create(categoryDto.getTitle())
                     : existingCategory.get().getId();
             String location = String.format("/categories/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
@@ -49,7 +50,7 @@ public final class CategoryController {
     public @NotNull ResponseEntity<Void> update(@PathVariable short id, 
                                                 @Valid @RequestBody @NotNull CategoryDto categoryDto) {
         try {
-            pluginService.updateCategory(id, categoryDto.getTitle());
+            categoryService.update(id, categoryDto.getTitle());
             String location = String.format("/categories/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
         }
@@ -60,7 +61,7 @@ public final class CategoryController {
     
     @DeleteMapping("/{id}")
     public @NotNull ResponseEntity<Void> delete(@PathVariable short id) {
-        pluginService.deleteCategory(id);
+        categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -2,7 +2,7 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.TagDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Tag;
-import com.danikvitek.MCPluginMarketplace.service.PluginService;
+import com.danikvitek.MCPluginMarketplace.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +18,17 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/tags")
 public final class TagController {
-    private final PluginService pluginService;
+    private final TagService tagService;
 
     @GetMapping
     public @NotNull ResponseEntity<List<TagDto>> index() {
-        return ResponseEntity.ok(pluginService.fetchAllTags().stream().map(pluginService::tagToDto).collect(Collectors.toList()));
+        return ResponseEntity.ok(tagService.fetchAll().stream().map(tagService::tagToDto).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDto> show(@PathVariable long id) {
         return Try.apply(() -> {
-            TagDto tag = pluginService.tagToDto(pluginService.fetchTagById(id));
+            TagDto tag = tagService.tagToDto(tagService.fetchById(id));
             return ResponseEntity.ok(tag);
         }).getOrElse(() -> ResponseEntity.notFound().build());
     }
@@ -37,9 +37,9 @@ public final class TagController {
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull TagDto tag) {
         return Try.apply(() -> {
             Try<Tag> existingTag = 
-                    Try.apply(() -> pluginService.fetchTagByTitle(tag.getTitle()));
+                    Try.apply(() -> tagService.fetchByTitle(tag.getTitle()));
             long id = existingTag.isFailure()
-                    ? pluginService.createTag(tag.getTitle()).getId()
+                    ? tagService.create(tag.getTitle()).getId()
                     : existingTag.get().getId();
             String location = String.format("/tags/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
@@ -48,7 +48,7 @@ public final class TagController {
 
     @DeleteMapping("/{id}")
     public @NotNull ResponseEntity<Void> delete(@PathVariable long id) {
-        pluginService.deleteTag(id);
+        tagService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
