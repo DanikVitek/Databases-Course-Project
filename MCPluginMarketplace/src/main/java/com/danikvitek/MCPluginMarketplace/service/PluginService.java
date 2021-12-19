@@ -47,7 +47,7 @@ public final class PluginService {
 
     public @NotNull Plugin create(@NotNull PluginDto pluginDto)
             throws AuthorsSetIsEmptyException, CategoryNotFoundException, PluginAlreadyExistsException, UserNotFoundException {
-        Plugin plugin = pluginDtoToPlugin(pluginDto, false);
+        Plugin plugin = dtoToPlugin(pluginDto, false);
         Set<User> authors = Optional.ofNullable(pluginDto.getAuthors())
                 .filter(maybeAuthors -> !maybeAuthors.isEmpty())
                 .orElseThrow(AuthorsSetIsEmptyException::new)
@@ -182,8 +182,8 @@ public final class PluginService {
      *
      * @return the mapped plugin
      */
-    public Plugin pluginDtoToPlugin(PluginDto pluginDto) {
-        return pluginDtoToPlugin(pluginDto, true);
+    public Plugin dtoToPlugin(PluginDto pluginDto) {
+        return dtoToPlugin(pluginDto, true);
     }
 
     /**
@@ -192,7 +192,7 @@ public final class PluginService {
      * @param includeId weather to include the ID provided by the DTO
      * @return the mapped plugin
      */
-    public Plugin pluginDtoToPlugin(PluginDto pluginDto, boolean includeId) throws CategoryNotFoundException {
+    public Plugin dtoToPlugin(PluginDto pluginDto, boolean includeId) throws CategoryNotFoundException {
         Plugin.PluginBuilder builder = Plugin.builder();
         if (includeId) builder.id(pluginDto.getId());
         return builder

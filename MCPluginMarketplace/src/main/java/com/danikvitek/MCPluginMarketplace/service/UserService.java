@@ -67,7 +67,7 @@ public final class UserService {
                 .build();
     }
 
-    public SimpleUserDto fullUserDtoToSimpleUserDto(@NotNull FullUserDto fullDto) {
+    public SimpleUserDto fullDtoToSimpleDto(@NotNull FullUserDto fullDto) {
         return SimpleUserDto.builder()
                 .id(fullDto.getId())
                 .username(fullDto.getUsername())
