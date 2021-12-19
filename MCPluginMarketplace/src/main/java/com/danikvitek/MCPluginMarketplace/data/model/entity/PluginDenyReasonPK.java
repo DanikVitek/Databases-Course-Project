@@ -1,8 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -13,31 +11,16 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PluginDenyReasonPK implements Serializable {
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pluginId;
-    @Column(name = "plugin_version", nullable = false, length = 20)
+    
+    @Column(name = "plugin_version", nullable = false, length = 20, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String pluginVersion;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public String getPluginVersion() {
-        return pluginVersion;
-    }
-
-    public void setPluginVersion(String pluginVersion) {
-        this.pluginVersion = pluginVersion;
-    }
 
     @Override
     public boolean equals(Object o) {

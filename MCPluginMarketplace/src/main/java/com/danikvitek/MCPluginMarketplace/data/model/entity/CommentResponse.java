@@ -1,11 +1,11 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,30 +13,13 @@ import javax.persistence.*;
 @Table(name = "comment_responses", schema = "course_project")
 @IdClass(CommentResponsePK.class)
 public class CommentResponse {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "parent_id", nullable = false)
+    @Column(name = "parent_id", nullable = false, updatable = false)
     private Long parentId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
-    @Column(name = "response_id", nullable = false)
+    @Column(name = "response_id", nullable = false, updatable = false)
     private Long responseId;
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public Long getResponseId() {
-        return responseId;
-    }
-
-    public void setResponseId(Long responseId) {
-        this.responseId = responseId;
-    }
 
     @Override
     public boolean equals(Object o) {

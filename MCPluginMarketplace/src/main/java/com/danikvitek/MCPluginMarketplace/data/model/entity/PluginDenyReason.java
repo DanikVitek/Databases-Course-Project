@@ -1,11 +1,11 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,41 +13,16 @@ import javax.persistence.*;
 @Table(name = "plugin_deny_reasons", schema = "course_project")
 @IdClass(PluginDenyReasonPK.class)
 public class PluginDenyReason {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
-    @Column(name = "plugin_version", nullable = false, length = 20)
+    @Column(name = "plugin_version", nullable = false, updatable = false, length = 20)
     private String pluginVersion;
-    @Basic
-    @Column(name = "reason", nullable = true, length = 200)
+    
+    @Column(name = "reason", length = 200)
     private String reason;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public String getPluginVersion() {
-        return pluginVersion;
-    }
-
-    public void setPluginVersion(String pluginVersion) {
-        this.pluginVersion = pluginVersion;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,42 +1,25 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "plugin_tags", schema = "course_project")
 @IdClass(PluginTagPK.class)
 public class PluginTag {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
-    @Column(name = "tag_id", nullable = false)
+    @Column(name = "tag_id", nullable = false, updatable = false)
     private Long tagId;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
-    }
 
     @Override
     public boolean equals(Object o) {

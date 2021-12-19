@@ -1,8 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -13,31 +11,16 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class PluginTagPK implements Serializable {
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pluginId;
-    @Column(name = "tag_id", nullable = false)
+    
+    @Column(name = "tag_id", nullable = false, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tagId;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
-    }
 
     @Override
     public boolean equals(Object o) {

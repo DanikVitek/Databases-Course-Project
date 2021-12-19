@@ -1,8 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -14,10 +12,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "plugins", schema = "course_project")
+@Getter
+@Setter
 public class Plugin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
     
     @Basic
@@ -39,50 +39,6 @@ public class Plugin {
     @Basic
     @Column(name = "price", nullable = false, precision = 2)
     private BigDecimal price;
-    
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Short getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Short categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public byte[] getIcon() {
-        return icon;
-    }
-
-    public void setIcon(byte[] icon) {
-        this.icon = icon;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
 
     @Override
     public boolean equals(Object o) {

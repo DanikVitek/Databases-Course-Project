@@ -1,11 +1,11 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,41 +13,16 @@ import javax.persistence.*;
 @Table(name = "plugin_ratings", schema = "course_project")
 @IdClass(PluginRatingPK.class)
 public class PluginRating {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
-    @Basic
+    
     @Column(name = "rating", nullable = false)
     private Byte rating;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Byte getRating() {
-        return rating;
-    }
-
-    public void setRating(Byte rating) {
-        this.rating = rating;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,11 +1,11 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,43 +13,18 @@ import javax.persistence.*;
 @Table(name = "supported_game_versions", schema = "course_project")
 @IdClass(SupportedGameVersionPK.class)
 public class SupportedGameVersion {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "plugin_id", nullable = false)
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     private Long pluginId;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
     @Column(name = "plugin_version_title", nullable = false, length = 20)
     private String pluginVersionTitle;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     @Id
-    @Column(name = "game_version_id", nullable = false)
+    @Column(name = "game_version_id", nullable = false, updatable = false)
     private Short gameVersionId;
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public String getPluginVersionTitle() {
-        return pluginVersionTitle;
-    }
-
-    public void setPluginVersionTitle(String pluginVersionTitle) {
-        this.pluginVersionTitle = pluginVersionTitle;
-    }
-
-    public Short getGameVersionId() {
-        return gameVersionId;
-    }
-
-    public void setGameVersionId(Short gameVersionId) {
-        this.gameVersionId = gameVersionId;
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

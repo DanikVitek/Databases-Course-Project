@@ -1,11 +1,11 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,27 +14,12 @@ import javax.persistence.*;
 public class GameVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private Short id;
+    
     @Basic
     @Column(name = "version_title", nullable = false, length = 20)
     private String versionTitle;
-
-    public Short getId() {
-        return id;
-    }
-
-    public void setId(Short id) {
-        this.id = id;
-    }
-
-    public String getVersionTitle() {
-        return versionTitle;
-    }
-
-    public void setVersionTitle(String versionTitle) {
-        this.versionTitle = versionTitle;
-    }
 
     @Override
     public boolean equals(Object o) {

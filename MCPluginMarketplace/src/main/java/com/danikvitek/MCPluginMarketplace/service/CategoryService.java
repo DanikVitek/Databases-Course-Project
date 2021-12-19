@@ -1,7 +1,9 @@
 package com.danikvitek.MCPluginMarketplace.service;
 
+import com.danikvitek.MCPluginMarketplace.api.dto.CategoryDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.data.repository.CategoryRepository;
+import com.danikvitek.MCPluginMarketplace.util.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,9 @@ public final class CategoryService {
         return categoryRepository.save(category).getId();
     }
 
-    public void update(short id, @NotNull String title) throws IllegalArgumentException {
+    public void update(short id, @NotNull String title) throws CategoryNotFoundException {
         Optional<Category> category = categoryRepository.findById(id);
-        category.orElseThrow(() -> new IllegalStateException("Category not found"))
+        category.orElseThrow(CategoryNotFoundException::new)
                 .setTitle(title);
     }
 
@@ -33,13 +35,27 @@ public final class CategoryService {
         categoryRepository.deleteById(id);
     }
 
-    public @NotNull Category fetchById(short id) throws IllegalArgumentException {
+    public @NotNull Category fetchById(short id) throws CategoryNotFoundException {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Category not found"));
+                .orElseThrow(CategoryNotFoundException::new);
     }
 
-    public @NotNull Category fetchByTitle(@NotNull String title) throws IllegalArgumentException {
+    public @NotNull Category fetchByTitle(@NotNull String title) throws CategoryNotFoundException {
         return categoryRepository.findByTitle(title)
-                .orElseThrow(() -> new IllegalStateException("Tag not found"));
+                .orElseThrow(CategoryNotFoundException::new);
+    }
+    
+    public CategoryDto categoryToDto(@NotNull Category category) {
+        return CategoryDto.builder()
+                .id(category.getId())
+                .title(category.getTitle())
+                .build();
+    }
+    
+    public Category dtoToCategory(@NotNull CategoryDto dto) {
+        return Category.builder()
+                .id(dto.getId())
+                .title(dto.getTitle())
+                .build();
     }
 }

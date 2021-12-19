@@ -1,12 +1,12 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,60 +15,20 @@ import java.sql.Timestamp;
 public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
-    @Basic
-    @Column(name = "user_id", nullable = false)
+    
+    @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
-    @Basic
-    @Column(name = "plugin_id", nullable = false)
+    
+    @Column(name = "plugin_id", nullable = false, updatable = false)
     private Long pluginId;
-    @Basic
+    
     @Column(name = "content", nullable = false, length = 300)
     private String content;
-    @Basic
-    @Column(name = "publication_time", nullable = false)
+    
+    @Column(name = "publication_time", nullable = false, updatable = false)
     private Timestamp publicationTime;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getPluginId() {
-        return pluginId;
-    }
-
-    public void setPluginId(Long pluginId) {
-        this.pluginId = pluginId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Timestamp getPublicationTime() {
-        return publicationTime;
-    }
-
-    public void setPublicationTime(Timestamp publicationTime) {
-        this.publicationTime = publicationTime;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,8 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -13,31 +11,16 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class CommentResponsePK implements Serializable {
-    @Column(name = "parent_id", nullable = false)
+    @Column(name = "parent_id", nullable = false, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long parentId;
-    @Column(name = "response_id", nullable = false)
+    
+    @Column(name = "response_id", nullable = false, updatable = false)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long responseId;
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public Long getResponseId() {
-        return responseId;
-    }
-
-    public void setResponseId(Long responseId) {
-        this.responseId = responseId;
-    }
 
     @Override
     public boolean equals(Object o) {

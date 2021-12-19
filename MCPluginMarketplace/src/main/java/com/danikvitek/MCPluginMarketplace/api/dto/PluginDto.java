@@ -39,6 +39,6 @@ public final class PluginDto implements Serializable {
     private BigDecimal price = BigDecimal.valueOf(0);
 
     private Set<String> authors;
-
+    
     private Set<String> tags;
 }

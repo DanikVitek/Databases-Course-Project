@@ -5,6 +5,8 @@ import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
+import com.danikvitek.MCPluginMarketplace.util.exception.AuthorsSetIsEmptyException;
+import com.danikvitek.MCPluginMarketplace.util.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -66,9 +68,11 @@ public final class PluginController {
             Plugin plugin = pluginService.create(pluginDto);
             String location = String.format("/plugins/%d", plugin.getId());
             return ResponseEntity.created(URI.create(location)).build();
-        } catch (Exception e) {
-            System.out.println("my caught exception:\t" + e.getMessage());
+        } catch (CategoryNotFoundException e) {
+            log.debug("my caught exception:\t" + e.getMessage());
             return ResponseEntity.notFound().build();
+        } catch (AuthorsSetIsEmptyException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -80,5 +84,11 @@ public final class PluginController {
             String location = String.format("/plugins/%d", id);
             return ResponseEntity.created(URI.create(location)).build();
         }).getOrElse(() -> ResponseEntity.notFound().build());
+    }
+    
+    @DeleteMapping("/{id}")
+    public @NotNull ResponseEntity<Void> delete(@PathVariable long id) {
+        pluginService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
