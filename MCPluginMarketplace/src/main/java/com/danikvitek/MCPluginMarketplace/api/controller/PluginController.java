@@ -5,14 +5,11 @@ import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
-import com.danikvitek.MCPluginMarketplace.util.exception.AuthorsSetIsEmptyException;
-import com.danikvitek.MCPluginMarketplace.util.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import scala.util.Try;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -40,10 +37,8 @@ public final class PluginController {
 
     @GetMapping("/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
-        return Try.apply(() -> {
-            PluginDto pluginDto = pluginService.pluginToDto(pluginService.fetchById(id));
-            return ResponseEntity.ok(pluginDto);
-        }).getOrElse(() -> ResponseEntity.notFound().build());
+        PluginDto pluginDto = pluginService.pluginToDto(pluginService.fetchById(id));
+        return ResponseEntity.ok(pluginDto);
     }
 
     @GetMapping("/{id}/authors")
@@ -59,31 +54,17 @@ public final class PluginController {
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
-//        return Try.apply(() -> {
-//            Plugin plugin = pluginService.createPlugin(pluginDto);
-//            String location = String.format("/plugins/%d", plugin.getId());
-//            return ResponseEntity.created(URI.create(location)).build();
-//        }).getOrElse(() -> ResponseEntity.notFound().build());
-        try {
-            Plugin plugin = pluginService.create(pluginDto);
-            String location = String.format("/plugins/%d", plugin.getId());
-            return ResponseEntity.created(URI.create(location)).build();
-        } catch (CategoryNotFoundException e) {
-            log.debug("my caught exception:\t" + e.getMessage());
-            return ResponseEntity.notFound().build();
-        } catch (AuthorsSetIsEmptyException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Plugin plugin = pluginService.create(pluginDto);
+        String location = String.format("/plugins/%d", plugin.getId());
+        return ResponseEntity.created(URI.create(location)).build();
     }
 
     @PatchMapping("/{id}")
     public @NotNull ResponseEntity<Void> update(@PathVariable long id,
                                                 @Valid @RequestBody PluginDto pluginDto) {
-        return Try.apply(() -> {
-            pluginService.update(id, pluginDto);
-            String location = String.format("/plugins/%d", id);
-            return ResponseEntity.created(URI.create(location)).build();
-        }).getOrElse(() -> ResponseEntity.notFound().build());
+        pluginService.update(id, pluginDto);
+        String location = String.format("/plugins/%d", id);
+        return ResponseEntity.created(URI.create(location)).build();
     }
     
     @DeleteMapping("/{id}")

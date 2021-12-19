@@ -3,9 +3,11 @@ package com.danikvitek.MCPluginMarketplace.service;
 import com.danikvitek.MCPluginMarketplace.api.dto.TagDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Tag;
 import com.danikvitek.MCPluginMarketplace.data.repository.TagRepository;
+import com.danikvitek.MCPluginMarketplace.util.exception.TagAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import scala.util.Try;
 
 import java.util.List;
 import java.util.Set;
@@ -29,9 +31,11 @@ public class TagService {
                 .orElseThrow(() -> new IllegalStateException("Tag not found"));
     }
 
-    public @NotNull Tag create(@NotNull String title) {
+    public @NotNull Tag create(@NotNull String title) throws TagAlreadyExistsException {
         Tag tag = Tag.builder().title(title).build();
-        return tagRepository.save(tag);
+        return Try.apply(() -> tagRepository.save(tag)).getOrElse(() -> {
+            throw new TagAlreadyExistsException(fetchByTitle(title).getId());
+        });
     }
     
     public Set<Tag> fetchByPlugin(long pluginId) throws IllegalArgumentException {

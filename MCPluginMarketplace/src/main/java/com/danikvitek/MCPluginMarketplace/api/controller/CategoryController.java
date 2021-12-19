@@ -3,7 +3,6 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 import com.danikvitek.MCPluginMarketplace.api.dto.CategoryDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.service.CategoryService;
-import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +13,8 @@ import scala.util.Try;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,48 +25,32 @@ public final class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public @NotNull ResponseEntity<List<Category>> index() {
-        return ResponseEntity.ok(categoryService.fetchAll());
+    public @NotNull ResponseEntity<Set<CategoryDto>> index() {
+        Set<CategoryDto> categories = categoryService.fetchAll().stream()
+                .map(categoryService::categoryToDto)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> show(@PathVariable short id) {
-        return Try
-                .apply(() -> {
-                    try {
-                        return categoryService.fetchById(id);
-                    } catch (Exception e) {
-                        log.debug("/categories/" + id + ":", e);
-                        throw e;
-                    }
-                })
-                .getOrElse(() -> ResponseEntity.notFound().build());
+    public @NotNull ResponseEntity<CategoryDto> show(@PathVariable short id) {
+        CategoryDto category = categoryService.categoryToDto(categoryService.fetchById(id));
+        return ResponseEntity.ok(category);
     }
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull CategoryDto categoryDto) {
-        return Try.apply(() -> {
-            Try<Category> existingCategory = 
-                    Try.apply(() -> categoryService.fetchByTitle(categoryDto.getTitle()));
-            int id = existingCategory.isFailure()
-                    ? categoryService.create(categoryDto.getTitle())
-                    : existingCategory.get().getId();
-            String location = String.format("/categories/%d", id);
-            return ResponseEntity.created(URI.create(location)).build();
-        }).getOrElse(() -> ResponseEntity.badRequest().build());
+        int id = categoryService.create(categoryDto.getTitle()).getId();
+        String location = String.format("/categories/%d", id);
+        return ResponseEntity.created(URI.create(location)).build();
     }
     
     @PatchMapping("/{id}")
     public @NotNull ResponseEntity<Void> update(@PathVariable short id, 
                                                 @Valid @RequestBody @NotNull CategoryDto categoryDto) {
-        try {
-            categoryService.update(id, categoryDto.getTitle());
-            String location = String.format("/categories/%d", id);
-            return ResponseEntity.created(URI.create(location)).build();
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        categoryService.update(id, categoryDto.getTitle());
+        String location = String.format("/categories/%d", id);
+        return ResponseEntity.created(URI.create(location)).build();
     }
     
     @DeleteMapping("/{id}")

@@ -3,9 +3,7 @@ package com.danikvitek.MCPluginMarketplace.service;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.*;
 import com.danikvitek.MCPluginMarketplace.data.repository.*;
-import com.danikvitek.MCPluginMarketplace.util.exception.AuthorsSetIsEmptyException;
-import com.danikvitek.MCPluginMarketplace.util.exception.CategoryNotFoundException;
-import com.danikvitek.MCPluginMarketplace.util.exception.PluginNotFoundException;
+import com.danikvitek.MCPluginMarketplace.util.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -47,10 +45,17 @@ public final class PluginService {
         else throw new IllegalArgumentException("Plugin ID must be >= 1");
     }
 
-    public @NotNull Plugin create(@NotNull PluginDto pluginDto) 
-            throws AuthorsSetIsEmptyException, CategoryNotFoundException {
+    public @NotNull Plugin create(@NotNull PluginDto pluginDto)
+            throws AuthorsSetIsEmptyException, CategoryNotFoundException, PluginAlreadyExistsException, UserNotFoundException {
         Plugin plugin = pluginDtoToPlugin(pluginDto, false);
-        Plugin savedPlugin = pluginRepository.save(plugin);
+        Set<User> authors = Optional.ofNullable(pluginDto.getAuthors())
+                .filter(maybeAuthors -> !maybeAuthors.isEmpty())
+                .orElseThrow(AuthorsSetIsEmptyException::new)
+                .stream().map(userService::fetchByUsername)
+                .collect(Collectors.toSet());
+        Plugin savedPlugin = Try.apply(() -> pluginRepository.save(plugin)).getOrElse(() -> {
+            throw new PluginAlreadyExistsException(fetchByTitle(pluginDto.getTitle()).getId());
+        });
         Optional.ofNullable(pluginDto.getTags())
                 .ifPresent(maybeTags -> maybeTags.forEach(tagTitle -> {
                     Tag tag;
@@ -75,24 +80,24 @@ public final class PluginService {
                         log.warn("Caught the exception, while saving plugin-tag pair:", e);
                     }
                 }));
-        Optional.ofNullable(pluginDto.getAuthors())
-                .filter(maybeAuthors -> !maybeAuthors.isEmpty())
-                .orElseThrow(AuthorsSetIsEmptyException::new)
-                .forEach(authorUsername -> {
-                    try {
-                        User author = userService.fetchByUsername(authorUsername);
-                        PluginAuthor pluginAuthor = PluginAuthor.builder()
-                                .pluginId(savedPlugin.getId())
-                                .userId(author.getId())
-                                .build();
-                        log.info(String.format("Saving plugin-author pair for plugin \"%s\" and user \"%s\"", savedPlugin.getTitle(), authorUsername));
-                        pluginAuthorRepository.save(pluginAuthor);
-                        log.info(String.format("Saved plugin-author pair for plugin \"%s\" and user \"%s\"", savedPlugin.getTitle(), authorUsername));
-                    } catch (Exception e) {
-                        log.warn("Caught the exception, while saving plugin-author pair:", e);
-                    }
-                });
+        authors.forEach(author -> {
+            try {
+                PluginAuthor pluginAuthor = PluginAuthor.builder()
+                        .pluginId(savedPlugin.getId())
+                        .userId(author.getId())
+                        .build();
+                log.info(String.format("Saving plugin-author pair for plugin \"%s\" and user \"%s\"", savedPlugin.getTitle(), author.getUsername()));
+                pluginAuthorRepository.save(pluginAuthor);
+                log.info(String.format("Saved plugin-author pair for plugin \"%s\" and user \"%s\"", savedPlugin.getTitle(), author.getUsername()));
+            } catch (Exception e) {
+                log.warn("Caught the exception, while saving plugin-author pair:", e);
+            }
+        });
         return savedPlugin;
+    }
+
+    private Plugin fetchByTitle(String title) throws PluginNotFoundException {
+        return pluginRepository.findByTitle(title).orElseThrow(PluginNotFoundException::new);
     }
 
 

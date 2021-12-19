@@ -37,15 +37,9 @@ public final class TagController {
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody @NotNull TagDto tag) {
-        return Try.apply(() -> {
-            Try<Tag> existingTag = 
-                    Try.apply(() -> tagService.fetchByTitle(tag.getTitle()));
-            long id = existingTag.isFailure()
-                    ? tagService.create(tag.getTitle()).getId()
-                    : existingTag.get().getId();
-            String location = String.format("/tags/%d", id);
-            return ResponseEntity.created(URI.create(location)).build();
-        }).getOrElse(() -> ResponseEntity.badRequest().build());
+        long id = tagService.create(tag.getTitle()).getId();
+        String location = String.format("/tags/%d", id);
+        return ResponseEntity.created(URI.create(location)).build();
     }
 
     @DeleteMapping("/{id}")

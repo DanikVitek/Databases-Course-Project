@@ -3,10 +3,12 @@ package com.danikvitek.MCPluginMarketplace.service;
 import com.danikvitek.MCPluginMarketplace.api.dto.CategoryDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Category;
 import com.danikvitek.MCPluginMarketplace.data.repository.CategoryRepository;
+import com.danikvitek.MCPluginMarketplace.util.exception.CategoryAlreadyExistsException;
 import com.danikvitek.MCPluginMarketplace.util.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import scala.util.Try;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +22,11 @@ public final class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public int create(String title) {
+    public @NotNull Category create(String title) throws CategoryAlreadyExistsException {
         Category category = Category.builder().title(title).build();
-        return categoryRepository.save(category).getId();
+        return Try.apply(() -> categoryRepository.save(category)).getOrElse(() -> {
+            throw new CategoryAlreadyExistsException(fetchByTitle(title).getId());
+        });
     }
 
     public void update(short id, @NotNull String title) throws CategoryNotFoundException {

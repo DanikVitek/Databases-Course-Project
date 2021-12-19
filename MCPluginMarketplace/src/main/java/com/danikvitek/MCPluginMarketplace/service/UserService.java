@@ -6,6 +6,7 @@ import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import com.danikvitek.MCPluginMarketplace.data.repository.PluginRepository;
 import com.danikvitek.MCPluginMarketplace.data.repository.UserRepository;
+import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public final class UserService {
 
     public @NotNull User fetchById(long id) throws IllegalArgumentException {
         if (id >= 1)
-            return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+            return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         else throw new IllegalArgumentException("ID must be >= 1");
     }
 
@@ -32,9 +33,8 @@ public final class UserService {
         else return userRepository.findAll(Pageable.ofSize(size).withPage(page));
     }
 
-    public User fetchByUsername(String username) throws IllegalArgumentException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public User fetchByUsername(String username) throws UserNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
     
     public Set<Plugin> fetchAuthoredPluginsById(long userId) throws IllegalArgumentException {
