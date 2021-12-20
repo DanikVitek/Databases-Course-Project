@@ -1,8 +1,10 @@
 package com.danikvitek.MCPluginMarketplace.api.controller;
 
+import com.danikvitek.MCPluginMarketplace.api.dto.CommentDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
+import com.danikvitek.MCPluginMarketplace.service.CommentService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,16 +27,15 @@ import java.util.stream.Collectors;
 public final class PluginController {
     private final PluginService pluginService;
     private final UserService userService;
+    private final CommentService commentService;
 
     @GetMapping
     public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size) {
-        if (page >= 0 && 1 <= size && size <= 20) {
-            List<PluginDto> plugins = pluginService.fetchAll(page, size)
-                    .map(pluginService::pluginToDto).getContent();
-            return ResponseEntity.ok(plugins);
-        } else return ResponseEntity.badRequest().build();
-    }
+        List<PluginDto> plugins = pluginService.fetchAll(page, size)
+                .map(pluginService::pluginToDto).getContent();
+        return ResponseEntity.ok(plugins);
+    } // todo: catch size and page exceptions
 
     @GetMapping("/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
@@ -43,15 +45,21 @@ public final class PluginController {
 
     @GetMapping("/{id}/authors")
     public @NotNull ResponseEntity<Set<SimpleUserDto>> showAuthors(@PathVariable long id) {
-        if (id >= 1) {
-            Set<SimpleUserDto> authors = pluginService.fetchAuthorsById(id)
-                    .stream()
-                    .map(userService::userToSimpleDto)
-                    .collect(Collectors.toSet());
-            return ResponseEntity.ok(authors);
-        } else return ResponseEntity.badRequest().build();
+        Set<SimpleUserDto> authors = pluginService.fetchAuthorsById(id)
+                .stream()
+                .map(userService::userToSimpleDto)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(authors);
     }
 
+    @GetMapping("/{id}/comments")
+    public @NotNull ResponseEntity<Collection<CommentDto>> showComments(@PathVariable long id) {
+        Collection<CommentDto> comments = commentService.fetchByPluginId(id).stream()
+                .map(commentService::commentToDto)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(comments);
+    }
+    
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
         Plugin plugin = pluginService.create(pluginDto);

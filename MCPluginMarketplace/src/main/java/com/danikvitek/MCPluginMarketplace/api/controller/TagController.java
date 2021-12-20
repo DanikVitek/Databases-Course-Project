@@ -29,10 +29,8 @@ public final class TagController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TagDto> show(@PathVariable long id) {
-        return Try.apply(() -> {
-            TagDto tag = tagService.tagToDto(tagService.fetchById(id));
-            return ResponseEntity.ok(tag);
-        }).getOrElse(() -> ResponseEntity.notFound().build());
+        TagDto tag = tagService.tagToDto(tagService.fetchById(id));
+        return ResponseEntity.ok(tag);
     }
 
     @PostMapping

@@ -23,7 +23,10 @@ public final class HandlerController {
     @ExceptionHandler({
             PluginNotFoundException.class,
             UserNotFoundException.class,
-            CategoryNotFoundException.class
+            CategoryNotFoundException.class,
+            TagNotFoundException.class,
+            CommentNotFoundException.class,
+            PluginRatingNotFoundException.class
     })
     public @NotNull ResponseEntity<ErrorDto> handleNotFoundException(@NotNull RuntimeException e,
                                                                      WebRequest request) {
@@ -37,22 +40,15 @@ public final class HandlerController {
     @ExceptionHandler({
             PluginAlreadyExistsException.class,
             CategoryAlreadyExistsException.class,
-            TagAlreadyExistsException.class
+            TagAlreadyExistsException.class,
+            AuthorsSetIsEmptyException.class,
+            IllegalArgumentException.class
     })
-    public @NotNull ResponseEntity<ErrorDto> handleAlreadyExistsException(@NotNull RuntimeException e,
-                                                                          WebRequest request) {
+    public @NotNull ResponseEntity<ErrorDto> handleBadRequestException(@NotNull RuntimeException e,
+                                                                       WebRequest request) {
         ErrorDto error = ErrorDto.builder()
                 .code("400 BAD REQUEST")
                 .description(e.getMessage())
-                .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    @ExceptionHandler(AuthorsSetIsEmptyException.class)
-    public @NotNull ResponseEntity<ErrorDto> handleAuthorsSetIsEmptyException() {
-        ErrorDto error = ErrorDto.builder()
-                .code("400 BAD REQUEST")
-                .description(AuthorsSetIsEmptyException.message)
                 .build();
         return ResponseEntity.badRequest().body(error);
     }

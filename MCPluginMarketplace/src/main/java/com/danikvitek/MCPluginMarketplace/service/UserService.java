@@ -8,6 +8,7 @@ import com.danikvitek.MCPluginMarketplace.data.repository.PluginRepository;
 import com.danikvitek.MCPluginMarketplace.data.repository.UserRepository;
 import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,13 +16,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public final class UserService {
     private final UserRepository userRepository;
     private final PluginRepository pluginRepository;
 
-    public @NotNull User fetchById(long id) throws IllegalArgumentException {
+    public @NotNull User fetchById(long id) throws UserNotFoundException {
         if (id >= 1)
             return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         else throw new IllegalArgumentException("ID must be >= 1");
@@ -37,8 +39,15 @@ public final class UserService {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
     
-    public Set<Plugin> fetchAuthoredPluginsById(long userId) throws IllegalArgumentException {
-        if (userId >= 1) return pluginRepository.findAuthoredPlugins(userId);
+    public Set<Plugin> fetchAuthoredPluginsById(long userId) 
+            throws IllegalArgumentException, UserNotFoundException {
+        if (userId >= 1)
+            try {
+                return pluginRepository.findAuthoredPlugins(userId);
+            } catch (Exception e) {
+                log.warn(String.format("Caught exception while fetching authored plugins: %s", e.getMessage()));
+                throw new UserNotFoundException();
+            }
         else throw new IllegalArgumentException("User id must be >= 1");
     }
 

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class RedisService {
+public final class RedisService {
     private final StringRedisTemplate redisTemplate;
 
     public void create(@NotNull RedisDto redisDto) throws IllegalArgumentException {

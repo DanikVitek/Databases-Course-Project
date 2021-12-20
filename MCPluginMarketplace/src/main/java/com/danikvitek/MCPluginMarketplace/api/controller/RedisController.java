@@ -14,7 +14,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/redis")
-public class RedisController {
+public final class RedisController {
     private final RedisService redisService;
 
     @PostMapping

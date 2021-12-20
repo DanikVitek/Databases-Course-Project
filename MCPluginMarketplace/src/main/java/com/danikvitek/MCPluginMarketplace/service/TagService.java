@@ -14,7 +14,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
-public class TagService {
+public final class TagService {
     private final TagRepository tagRepository;
 
     public @NotNull List<Tag> fetchAll() {

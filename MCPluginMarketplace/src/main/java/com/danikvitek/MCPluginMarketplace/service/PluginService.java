@@ -24,6 +24,7 @@ public final class PluginService {
     private final UserRepository userRepository;
     private final PluginAuthorRepository pluginAuthorRepository;
     private final PluginTagRepository pluginTagRepository;
+    private final PluginRatingRepository pluginRatingRepository;
 
     private final UserService userService;
     private final CategoryService categoryService;
@@ -39,15 +40,25 @@ public final class PluginService {
                 .orElseThrow(PluginNotFoundException::new);
         else throw new IllegalArgumentException("ID must be >= 1");
     }
-    
+
+    private Plugin fetchByTitle(String title) throws PluginNotFoundException {
+        return pluginRepository.findByTitle(title).orElseThrow(PluginNotFoundException::new);
+    }
+
     public @NotNull Set<User> fetchAuthorsById(long pluginId) throws IllegalArgumentException {
         if (pluginId >= 1) return userRepository.findByAuthoredPlugin(pluginId);
         else throw new IllegalArgumentException("Plugin ID must be >= 1");
     }
 
+    public double fetchRating(long id) throws PluginNotFoundException {
+        Plugin plugin = fetchById(id);
+        return pluginRatingRepository.getByPluginId(plugin.getId()).orElse(0D);
+    }
+
     public @NotNull Plugin create(@NotNull PluginDto pluginDto)
-            throws AuthorsSetIsEmptyException, CategoryNotFoundException, PluginAlreadyExistsException, UserNotFoundException {
-        Plugin plugin = dtoToPlugin(pluginDto, false);
+            throws AuthorsSetIsEmptyException, CategoryNotFoundException, 
+                   PluginAlreadyExistsException, UserNotFoundException {
+        Plugin plugin = dtoToPlugin(pluginDto);
         Set<User> authors = Optional.ofNullable(pluginDto.getAuthors())
                 .filter(maybeAuthors -> !maybeAuthors.isEmpty())
                 .orElseThrow(AuthorsSetIsEmptyException::new)
@@ -95,11 +106,6 @@ public final class PluginService {
         });
         return savedPlugin;
     }
-
-    private Plugin fetchByTitle(String title) throws PluginNotFoundException {
-        return pluginRepository.findByTitle(title).orElseThrow(PluginNotFoundException::new);
-    }
-
 
     public void update(long id, @NotNull PluginDto pluginDto)
             throws IllegalArgumentException, PluginNotFoundException, CategoryNotFoundException {
@@ -174,6 +180,7 @@ public final class PluginService {
                 .tags(tagService.fetchByPlugin(plugin.getId()).stream()
                         .map(Tag::getTitle)
                         .collect(Collectors.toSet()))
+                .rating(fetchRating(plugin.getId()))
                 .build();
     }
 
@@ -183,7 +190,7 @@ public final class PluginService {
      * @return the mapped plugin
      */
     public Plugin dtoToPlugin(PluginDto pluginDto) {
-        return dtoToPlugin(pluginDto, true);
+        return dtoToPlugin(pluginDto, false);
     }
 
     /**
@@ -194,7 +201,7 @@ public final class PluginService {
      */
     public Plugin dtoToPlugin(PluginDto pluginDto, boolean includeId) throws CategoryNotFoundException {
         Plugin.PluginBuilder builder = Plugin.builder();
-        if (includeId) builder.id(pluginDto.getId());
+        if (includeId) builder = builder.id(pluginDto.getId());
         return builder
                 .title(pluginDto.getTitle())
                 .description(pluginDto.getDescription())
