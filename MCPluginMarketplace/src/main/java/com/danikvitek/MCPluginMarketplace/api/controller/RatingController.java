@@ -19,7 +19,7 @@ public final class RatingController {
 
     @GetMapping(params = {"plugin_id", "user_id"})
     public @NotNull ResponseEntity<RatingDto> showForPlugin(@RequestParam(name = "plugin_id") long pluginId,
-                                                         @RequestParam(name = "user_id") long userId) {
+                                                            @RequestParam(name = "user_id") long userId) {
         return ResponseEntity.ok(ratingService.ratingToDto(ratingService.fetchById(pluginId, userId)));
     }
 

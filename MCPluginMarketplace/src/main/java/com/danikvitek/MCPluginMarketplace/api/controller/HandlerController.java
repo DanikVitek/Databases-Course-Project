@@ -42,6 +42,7 @@ public final class HandlerController {
             CategoryAlreadyExistsException.class,
             TagAlreadyExistsException.class,
             AuthorsSetIsEmptyException.class,
+            UserAlreadyExistsException.class,
             IllegalArgumentException.class
     })
     public @NotNull ResponseEntity<ErrorDto> handleBadRequestException(@NotNull RuntimeException e,

@@ -1,36 +1,39 @@
-package com.danikvitek.MCPluginMarketplace.configuration.security;
+package com.danikvitek.MCPluginMarketplace.config.security;
 
-import com.danikvitek.MCPluginMarketplace.model.User;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 public class UserPrincipal implements UserDetails {
-    public User account;
 
-    public UserPrincipal(User account) {
-        this.account = account;
+    private final User user;
+
+    public UserPrincipal(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<SimpleGrantedAuthority> grantedAuthoritySet = new HashSet<>();
-        grantedAuthoritySet.add(new SimpleGrantedAuthority(account.getAuthority()));
-        return grantedAuthoritySet;
+        String authority = user.getRole().getAuthority();
+        return Set.of(new SimpleGrantedAuthority(authority));
     }
 
     @Override
     public String getPassword() {
-        return account.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return account.getUsername();
+        return user.getUsername();
     }
 
     @Override
@@ -40,7 +43,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // todo: look in banned_users table
+        return true;
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.danikvitek.MCPluginMarketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,9 +29,12 @@ public final class UserController {
     @GetMapping
     public @NotNull ResponseEntity<List<SimpleUserDto>> index(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "5") int size) {
-        List<SimpleUserDto> users = userService.fetchPage(page, size)
-                .map(userService::userToSimpleDto).getContent();
-        return ResponseEntity.ok(users);
+        if (size <= 20) {
+            List<SimpleUserDto> users = userService.fetchPage(page, size)
+                    .map(userService::userToSimpleDto).getContent();
+            return ResponseEntity.ok(users);
+        }
+        else throw new IllegalArgumentException("Page size must not be greater than twenty!");
     }
 
     @GetMapping("/{id}")
@@ -38,7 +42,6 @@ public final class UserController {
         SimpleUserDto user = userService.userToSimpleDto(userService.fetchById(id));
         return ResponseEntity.ok(user);
     }
-
 
     @GetMapping("/{id}/authored_plugins")
     public @NotNull ResponseEntity<Set<PluginDto>> showAuthoredPlugins(@PathVariable long id) {

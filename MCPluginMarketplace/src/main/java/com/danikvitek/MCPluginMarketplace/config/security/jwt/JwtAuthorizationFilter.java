@@ -1,6 +1,7 @@
-package com.danikvitek.MCPluginMarketplace.configuration.security.jwt;
+package com.danikvitek.MCPluginMarketplace.config.security.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,18 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends GenericFilterBean {
-
     private final JwtProcessor jwtProcessor;
 
-    JwtAuthorizationFilter(JwtProcessor jwtProcessor) {
-        this.jwtProcessor = jwtProcessor;
-    }
-
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-            throws IOException, ServletException {
-
+    public void doFilter(ServletRequest request,
+                         ServletResponse response,
+                         FilterChain filterChain) throws IOException, ServletException {
         String jwt = jwtProcessor.getJwt((HttpServletRequest) request);
         if (tryToValidate(jwt)) {
             Authentication authentication = jwtProcessor.getAuthentication(jwt);

@@ -12,6 +12,7 @@ import scala.util.Try;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +24,18 @@ public final class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public @NotNull ResponseEntity<List<TagDto>> index() {
-        return ResponseEntity.ok(tagService.fetchAll().stream().map(tagService::tagToDto).collect(Collectors.toList()));
+    public @NotNull ResponseEntity<Collection<TagDto>> index(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "5") int size) {
+        if (size <= 30) {
+            Collection<TagDto> tags = tagService.fetchAll(page, size).stream()
+                    .map(tagService::tagToDto)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(tags);
+        } else throw new IllegalArgumentException("Page size must not be greater than thirty!");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TagDto> show(@PathVariable long id) {
+    public @NotNull ResponseEntity<TagDto> show(@PathVariable long id) {
         TagDto tag = tagService.tagToDto(tagService.fetchById(id));
         return ResponseEntity.ok(tag);
     }

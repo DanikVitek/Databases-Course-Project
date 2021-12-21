@@ -1,10 +1,11 @@
-package com.danikvitek.MCPluginMarketplace.configuration.security;
+package com.danikvitek.MCPluginMarketplace.config.security;
 
-import com.danikvitek.MCPluginMarketplace.configuration.security.jwt.JwtAuthenticationEntryPoint;
-import com.danikvitek.MCPluginMarketplace.configuration.security.jwt.JwtConfigurer;
-import com.danikvitek.MCPluginMarketplace.configuration.security.jwt.JwtProcessor;
-import com.danikvitek.MCPluginMarketplace.configuration.security.jwt.JwtProperties;
+import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtAuthenticationEntryPoint;
+import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtConfigurer;
+import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProcessor;
+import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProperties;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -16,18 +17,23 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import scala.Tuple2;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Configuration
 @EnableWebSecurity(debug = true)
-@AllArgsConstructor(onConstructor = @__(@Autowired))
+@AllArgsConstructor(onConstructor_ = { @Autowired })
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements ApplicationContextAware {
-
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtProperties jwtProperties;
@@ -54,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
+    protected void configure(@NotNull AuthenticationManagerBuilder authenticationManagerBuilder) {
         authenticationManagerBuilder.authenticationProvider(authenticationProvider());
     }
 
@@ -71,25 +77,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
     public GrantedAuthoritiesMapper authoritiesMapper() {
         SimpleAuthorityMapper authorityMapper = new SimpleAuthorityMapper();
         authorityMapper.setConvertToUpperCase(true);
-        authorityMapper.setDefaultAuthority("USER");
+        authorityMapper.setDefaultAuthority("user");
         return authorityMapper;
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
+    protected void configure(@NotNull HttpSecurity http) throws Exception {
+        List<Tuple2<HttpMethod, String>> permittedPaths = Arrays.asList(
+                new Tuple2<>(HttpMethod.POST, "/login"),
+                new Tuple2<>(HttpMethod.POST, "/signup"),
+                new Tuple2<>(HttpMethod.GET, "/plugins"),
+                new Tuple2<>(HttpMethod.GET, "/plugins/{id}"),
+                new Tuple2<>(HttpMethod.GET, "/tags"),
+                new Tuple2<>(HttpMethod.GET, "/tags/{id}"),
+                new Tuple2<>(HttpMethod.GET, "/categories"),
+                new Tuple2<>(HttpMethod.GET, "/categories/{id}"),
+                new Tuple2<>(HttpMethod.GET, "/users"),
+                new Tuple2<>(HttpMethod.GET, "/users/{id}")
+        );
+        AtomicReference<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> expressionInterceptUrlRegistry = new AtomicReference<>(http
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/signin").permitAll()
-                .antMatchers(HttpMethod.POST, "/signup").permitAll()
+                .authorizeRequests());
+        permittedPaths.forEach(path -> {
+            expressionInterceptUrlRegistry.set(expressionInterceptUrlRegistry.get()
+                    .antMatchers(path._1, path._2).permitAll()
+                    .antMatchers(path._1, path._2 + "/").permitAll());
+        });
+        expressionInterceptUrlRegistry.get()
                 .anyRequest().authenticated()
                 .and()
                 .apply(jwtConfigurer());
     }
-
 }

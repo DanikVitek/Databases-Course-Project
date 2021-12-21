@@ -30,9 +30,8 @@ dependencies {
 
 	implementation 'org.jetbrains:annotations:22.0.0'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.zalando:logbook-spring-boot-starter:2.14.0'
-//	compileOnly 'org.springframework.boot:spring-boot-devtools'
 
 	implementation 'mysql:mysql-connector-java'
 	compileOnly 'org.projectlombok:lombok'
