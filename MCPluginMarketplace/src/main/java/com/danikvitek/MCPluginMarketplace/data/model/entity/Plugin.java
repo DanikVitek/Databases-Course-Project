@@ -3,6 +3,9 @@ package com.danikvitek.MCPluginMarketplace.data.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Set;
@@ -36,7 +39,8 @@ public class Plugin {
     @Column(name = "icon", nullable = true)
     private byte[] icon;
     
-    @Basic
+    @PositiveOrZero
+    @Digits(integer = 5, fraction = 2)
     @Column(name = "price", nullable = false, precision = 2)
     private BigDecimal price;
 

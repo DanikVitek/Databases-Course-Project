@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RatingDto implements Serializable {
+public final class RatingDto implements Serializable {
     @Positive
     private Long pluginId;
     @Positive

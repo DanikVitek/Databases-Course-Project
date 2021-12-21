@@ -16,7 +16,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommentDto implements Serializable {
+public final class CommentDto implements Serializable {
     private Long id;
 
     @Positive

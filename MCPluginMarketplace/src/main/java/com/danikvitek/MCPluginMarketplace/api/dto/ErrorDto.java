@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @Data
-public class ErrorDto implements Serializable {
+public final class ErrorDto implements Serializable {
     String code;
     String description;
 }

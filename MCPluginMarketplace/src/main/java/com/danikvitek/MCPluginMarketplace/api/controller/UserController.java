@@ -1,18 +1,18 @@
 package com.danikvitek.MCPluginMarketplace.api.controller;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.CommentDto;
+import com.danikvitek.MCPluginMarketplace.api.dto.FullUserDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
 import com.danikvitek.MCPluginMarketplace.service.CommentService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import scala.util.Try;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ public final class UserController {
 
     @GetMapping("/{id}/authored_plugins")
     public @NotNull ResponseEntity<Set<PluginDto>> showAuthoredPlugins(@PathVariable long id) {
-        Set<PluginDto> plugins = userService.fetchAuthoredPluginsById(id).stream()
+        Set<PluginDto> plugins = pluginService.fetchByAuthorId(id).stream()
                 .map(pluginService::pluginToDto)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(plugins);

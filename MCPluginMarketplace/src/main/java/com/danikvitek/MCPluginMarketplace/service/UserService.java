@@ -2,7 +2,8 @@ package com.danikvitek.MCPluginMarketplace.service;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.FullUserDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
+import com.danikvitek.MCPluginMarketplace.api.dto.jwt.JwtRequestDto;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.Role;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import com.danikvitek.MCPluginMarketplace.data.repository.PluginRepository;
 import com.danikvitek.MCPluginMarketplace.data.repository.UserRepository;
@@ -21,7 +22,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public final class UserService {
     private final UserRepository userRepository;
-    private final PluginRepository pluginRepository;
 
     public @NotNull User fetchById(long id) throws UserNotFoundException {
         if (id >= 1)
@@ -38,19 +38,19 @@ public final class UserService {
     public User fetchByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
-    
-    public Set<Plugin> fetchAuthoredPluginsById(long userId) 
-            throws IllegalArgumentException, UserNotFoundException {
-        if (userId >= 1)
-            try {
-                return pluginRepository.findAuthoredPlugins(userId);
-            } catch (Exception e) {
-                log.warn(String.format("Caught exception while fetching authored plugins: %s", e.getMessage()));
-                throw new UserNotFoundException();
-            }
-        else throw new IllegalArgumentException("User id must be >= 1");
+
+    public @NotNull Set<User> fetchAuthorsByPluginId(long pluginId) throws IllegalArgumentException {
+        if (pluginId >= 1) return userRepository.findByAuthoredPlugin(pluginId);
+        else throw new IllegalArgumentException("Plugin ID must be >= 1");
     }
 
+//    public @NotNull String getJwtToken(JwtRequestDto jwtRequestDto) {
+//        String secretKey = "placeholder";
+//        Role role = Role.user; // placeholder
+//        String token = Jtws.;
+//
+//        return token;
+//    }
 
     public SimpleUserDto userToSimpleDto(@NotNull User user) {
         return SimpleUserDto.builder()

@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Builder
 @Data
 @Getter
-public class RedisDto implements Serializable {
+public final class RedisDto implements Serializable {
     @NotBlank
     private String key;
 

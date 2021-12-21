@@ -35,7 +35,7 @@ public final class PluginController {
         List<PluginDto> plugins = pluginService.fetchAll(page, size)
                 .map(pluginService::pluginToDto).getContent();
         return ResponseEntity.ok(plugins);
-    } // todo: catch size and page exceptions
+    }
 
     @GetMapping("/{id}")
     public @NotNull ResponseEntity<PluginDto> show(@PathVariable long id) {
@@ -45,7 +45,7 @@ public final class PluginController {
 
     @GetMapping("/{id}/authors")
     public @NotNull ResponseEntity<Set<SimpleUserDto>> showAuthors(@PathVariable long id) {
-        Set<SimpleUserDto> authors = pluginService.fetchAuthorsById(id)
+        Set<SimpleUserDto> authors = userService.fetchAuthorsByPluginId(id)
                 .stream()
                 .map(userService::userToSimpleDto)
                 .collect(Collectors.toSet());

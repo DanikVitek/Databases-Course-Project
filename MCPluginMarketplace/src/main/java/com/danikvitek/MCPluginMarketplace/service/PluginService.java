@@ -45,9 +45,16 @@ public final class PluginService {
         return pluginRepository.findByTitle(title).orElseThrow(PluginNotFoundException::new);
     }
 
-    public @NotNull Set<User> fetchAuthorsById(long pluginId) throws IllegalArgumentException {
-        if (pluginId >= 1) return userRepository.findByAuthoredPlugin(pluginId);
-        else throw new IllegalArgumentException("Plugin ID must be >= 1");
+    public Set<Plugin> fetchByAuthorId(long userId)
+            throws IllegalArgumentException, UserNotFoundException {
+        if (userId >= 1)
+            try {
+                return pluginRepository.findAuthoredPlugins(userId);
+            } catch (Exception e) {
+                log.warn(String.format("Caught exception while fetching authored plugins: %s", e.getMessage()));
+                throw new UserNotFoundException();
+            }
+        else throw new IllegalArgumentException("User id must be >= 1");
     }
 
     public double fetchRating(long id) throws PluginNotFoundException {
