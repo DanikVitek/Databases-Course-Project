@@ -1,8 +1,14 @@
 package com.danikvitek.MCPluginMarketplace.data.model.entity;
 
 import lombok.*;
+import org.springframework.format.annotation.NumberFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -31,7 +37,7 @@ public class User {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
     
-    @Basic
+    @Email
     @Column(name = "email", nullable = false, length = 254)
     private String email;
     
@@ -46,7 +52,14 @@ public class User {
     
     @Column(name = "registration_time", nullable = false, updatable = false)
     private Timestamp registrationTime;
-    
+
+    @PositiveOrZero
+    @Digits(integer = 9, fraction = 2)
+    @NumberFormat(pattern = "$###,###,###.00")
+    @Builder.Default
+    @Column(name = "balance", nullable = false, precision = 2, scale = 9)
+    private BigDecimal balance = BigDecimal.ZERO;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

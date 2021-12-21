@@ -1,18 +1,18 @@
 package com.danikvitek.MCPluginMarketplace.service;
 
 import com.danikvitek.MCPluginMarketplace.api.dto.FullUserDto;
+import com.danikvitek.MCPluginMarketplace.api.dto.RegistrationDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
-import com.danikvitek.MCPluginMarketplace.api.dto.jwt.JwtRequestDto;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Role;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
-import com.danikvitek.MCPluginMarketplace.data.repository.PluginRepository;
 import com.danikvitek.MCPluginMarketplace.data.repository.UserRepository;
+import com.danikvitek.MCPluginMarketplace.util.exception.UserAlreadyExistsException;
 import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -22,6 +22,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public final class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public @NotNull User fetchById(long id) throws UserNotFoundException {
         if (id >= 1)
@@ -39,18 +40,35 @@ public final class UserService {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
+    private User fetchByEmail(String email) throws UserNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+    }
+
     public @NotNull Set<User> fetchAuthorsByPluginId(long pluginId) throws IllegalArgumentException {
         if (pluginId >= 1) return userRepository.findByAuthoredPlugin(pluginId);
         else throw new IllegalArgumentException("Plugin ID must be >= 1");
     }
 
-//    public @NotNull String getJwtToken(JwtRequestDto jwtRequestDto) {
-//        String secretKey = "placeholder";
-//        Role role = Role.user; // placeholder
-//        String token = Jtws.;
-//
-//        return token;
-//    }
+    public @NotNull User create(RegistrationDto registrationDto) {
+        try {
+            fetchByUsername(registrationDto.getUsername());
+            fetchByEmail(registrationDto.getEmail());
+        } catch (UserNotFoundException e) {
+            User newUser = registrationDtoToUser(registrationDto);
+            return userRepository.save(newUser);
+        }
+        throw new UserAlreadyExistsException();
+    }
+
+    public User registrationDtoToUser(@NotNull RegistrationDto registrationDto) {
+        return User.builder()
+                .username(registrationDto.getUsername())
+                .firstName(registrationDto.getFirstName())
+                .lastName(registrationDto.getLastName())
+                .email(registrationDto.getEmail())
+                .password(passwordEncoder.encode(registrationDto.getPassword()))
+                .build();
+    }
 
     public SimpleUserDto userToSimpleDto(@NotNull User user) {
         return SimpleUserDto.builder()

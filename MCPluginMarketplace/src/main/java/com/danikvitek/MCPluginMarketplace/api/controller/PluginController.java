@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,11 +31,15 @@ public final class PluginController {
     private final CommentService commentService;
 
     @GetMapping
+    @PreAuthorize("(isAuthenticated() == false) || (isAuthenticated() == true)")
     public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size) {
-        List<PluginDto> plugins = pluginService.fetchAll(page, size)
-                .map(pluginService::pluginToDto).getContent();
-        return ResponseEntity.ok(plugins);
+        if (size <= 20) {
+            List<PluginDto> plugins = pluginService.fetchAll(page, size)
+                    .map(pluginService::pluginToDto).getContent();
+            return ResponseEntity.ok(plugins);
+        }
+        else throw new IllegalArgumentException("Page size must not be greater than twenty!");
     }
 
     @GetMapping("/{id}")

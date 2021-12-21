@@ -1,11 +1,15 @@
-package com.danikvitek.MCPluginMarketplace.configuration.security.jwt;
+package com.danikvitek.MCPluginMarketplace.config.security.jwt;
 
-import com.danikvitek.MCPluginMarketplace.configuration.security.UserPrincipal;
-import com.danikvitek.MCPluginMarketplace.model.User;
+import com.danikvitek.MCPluginMarketplace.config.security.UserPrincipal;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.Role;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,36 +20,29 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class JwtProcessor {
 
-    private JwtProperties properties;
-    private String secret;
-    private UserDetailsService userDetailsService;
+    private final JwtProperties properties;
+    private final String secret;
+    private final UserDetailsService userDetailsService;
 
     @Autowired
     public JwtProcessor(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
-                        JwtProperties properties) {
+                        @NotNull JwtProperties properties) {
         this.userDetailsService = userDetailsService;
         this.properties = properties;
         this.secret = getBase64EncodedSecretKey(properties.getSecret());
     }
 
-    private String getBase64EncodedSecretKey(String secret) {
+    private String getBase64EncodedSecretKey(@NotNull String secret) {
         return Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String createJwt(String username, Collection<GrantedAuthority> authorities) {
+    public String createJwt(String username, GrantedAuthority authority) {
 
-        Claims claims = createClaims(username, authorities);
+        Claims claims = createClaims(username, authority);
 
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + properties.getExpirationSeconds());
@@ -53,25 +50,15 @@ public class JwtProcessor {
         return buildJwt(claims, now, expirationDate);
     }
 
-    private Claims createClaims(String username, Collection<GrantedAuthority> authorities) {
+    private @NotNull Claims createClaims(String username, @NotNull GrantedAuthority authority) {
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", getRoles(authorities));
+        claims.put("role", authority.getAuthority());
         return claims;
     }
 
-    private List<String> getRoles(Collection<GrantedAuthority> authorities) {
-        List<String> roles = new ArrayList<>();
-
-        authorities.forEach(role -> roles.add(role.getAuthority()));
-        return roles;
-    }
-
-    private Collection<? extends GrantedAuthority> getAuthorities(String jwt) {
-        Set<SimpleGrantedAuthority> grantedAuthoritySet = new HashSet<>();
-        List<String> roles = (List<String>) getClaims(jwt).getBody().get("roles");
-        Arrays.stream(roles.toArray())
-                .forEach(s -> grantedAuthoritySet.add(new SimpleGrantedAuthority((String) s)));
-        return grantedAuthoritySet;
+    private @NotNull @Unmodifiable Collection<? extends GrantedAuthority> getAuthorities(String jwt) {
+        String role = (String) getClaims(jwt).getBody().get("role");
+        return Set.of(new SimpleGrantedAuthority(role));
     }
 
     private String buildJwt(Claims claims, Date issuedAt, Date expirationDate) {
@@ -97,7 +84,7 @@ public class JwtProcessor {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(jwt);
     }
 
-    String getJwt(HttpServletRequest request) {
+    String getJwt(@NotNull HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
@@ -109,7 +96,8 @@ public class JwtProcessor {
         return jwt != null && jwt.contains(".") && hasNoWhitespaces(jwt) && isNotExpired(jwt);
     }
 
-    private boolean hasNoWhitespaces(String token) {
+    @Contract(pure = true)
+    private boolean hasNoWhitespaces(@NotNull String token) {
         return !token.matches("[\\s]");
     }
 
@@ -117,7 +105,7 @@ public class JwtProcessor {
         return isExpirationNotBeforeNow(getClaims(jwt));
     }
 
-    private boolean isExpirationNotBeforeNow(Jws<Claims> claims) {
+    private boolean isExpirationNotBeforeNow(@NotNull Jws<Claims> claims) {
         return !claims.getBody().getExpiration().before(new Date());
     }
 }

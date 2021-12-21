@@ -6,6 +6,7 @@ import com.danikvitek.MCPluginMarketplace.data.repository.TagRepository;
 import com.danikvitek.MCPluginMarketplace.util.exception.TagAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import scala.util.Try;
 
@@ -17,8 +18,8 @@ import java.util.Set;
 public final class TagService {
     private final TagRepository tagRepository;
 
-    public @NotNull List<Tag> fetchAll() {
-        return tagRepository.findAll();
+    public @NotNull List<Tag> fetchAll(int page, int size) {
+        return tagRepository.findAll(Pageable.ofSize(size).withPage(page)).getContent();
     }
 
     public @NotNull Tag fetchById(long id) throws IllegalArgumentException {
