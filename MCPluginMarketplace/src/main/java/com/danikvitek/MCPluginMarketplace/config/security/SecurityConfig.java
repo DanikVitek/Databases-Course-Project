@@ -4,6 +4,7 @@ import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtAuthenticationE
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtConfigurer;
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProcessor;
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProperties;
+import com.danikvitek.MCPluginMarketplace.util.Tuple2;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import scala.Tuple2;
 
 import java.util.Arrays;
 import java.util.List;
@@ -105,8 +105,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
                 .authorizeRequests());
         permittedPaths.forEach(path -> {
             expressionInterceptUrlRegistry.set(expressionInterceptUrlRegistry.get()
-                    .antMatchers(path._1, path._2).permitAll()
-                    .antMatchers(path._1, path._2 + "/").permitAll());
+                    .antMatchers(path.getFirst(), path.getSecond()).permitAll()
+                    .antMatchers(path.getFirst(), path.getSecond() + "/").permitAll());
         });
         expressionInterceptUrlRegistry.get()
                 .anyRequest().authenticated()

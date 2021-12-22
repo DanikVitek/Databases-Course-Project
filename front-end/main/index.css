@@ -1,0 +1,10 @@
+body {
+    background: #70ff8f;
+}
+
+#result {
+    border-color: aliceblue;
+    border-radius: 5px;
+    width: fit-content;
+    height: 50px;
+}

@@ -1,7 +1,6 @@
 package com.danikvitek.MCPluginMarketplace.config.security.jwt;
 
 import com.danikvitek.MCPluginMarketplace.config.security.UserPrincipal;
-import com.danikvitek.MCPluginMarketplace.data.model.entity.Role;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -45,7 +44,7 @@ public class JwtProcessor {
         Claims claims = createClaims(username, authority);
 
         Date now = new Date();
-        Date expirationDate = new Date(now.getTime() + properties.getExpirationSeconds());
+        Date expirationDate = new Date(now.getTime() + properties.getExpirationMillis());
 
         return buildJwt(claims, now, expirationDate);
     }

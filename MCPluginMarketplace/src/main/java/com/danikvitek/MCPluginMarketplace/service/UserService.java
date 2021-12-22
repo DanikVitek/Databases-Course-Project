@@ -49,7 +49,7 @@ public final class UserService {
         else throw new IllegalArgumentException("Plugin ID must be >= 1");
     }
 
-    public @NotNull User create(RegistrationDto registrationDto) {
+    public @NotNull User create(@NotNull RegistrationDto registrationDto) {
         try {
             fetchByUsername(registrationDto.getUsername());
             fetchByEmail(registrationDto.getEmail());
