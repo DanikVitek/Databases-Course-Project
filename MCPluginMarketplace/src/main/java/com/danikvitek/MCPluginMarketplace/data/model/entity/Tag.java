@@ -3,6 +3,7 @@ package com.danikvitek.MCPluginMarketplace.data.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -27,8 +28,8 @@ public class Tag {
 
         Tag tag = (Tag) o;
 
-        if (id != null ? !id.equals(tag.id) : tag.id != null) return false;
-        if (title != null ? !title.equals(tag.title) : tag.title != null) return false;
+        if (!Objects.equals(id, tag.id)) return false;
+        if (!Objects.equals(title, tag.title)) return false;
 
         return true;
     }

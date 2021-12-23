@@ -3,15 +3,17 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 import com.danikvitek.MCPluginMarketplace.api.dto.CommentDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.Comment;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
 import com.danikvitek.MCPluginMarketplace.service.CommentService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
+import com.danikvitek.MCPluginMarketplace.util.exception.PluginNotFoundException;
+import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,15 +33,15 @@ public final class PluginController {
     private final CommentService commentService;
 
     @GetMapping
-    @PreAuthorize("(isAuthenticated() == false) || (isAuthenticated() == true)")
     public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "5") int size) {
         if (size <= 20) {
-            List<PluginDto> plugins = pluginService.fetchAll(page, size)
-                    .map(pluginService::pluginToDto).getContent();
+            List<PluginDto> plugins = pluginService
+                    .fetchAll(page, size)
+                    .map(pluginService::pluginToDto)
+                    .getContent();
             return ResponseEntity.ok(plugins);
-        }
-        else throw new IllegalArgumentException("Page size must not be greater than twenty!");
+        } else throw new IllegalArgumentException("Page size must not be greater than twenty!");
     }
 
     @GetMapping("/{id}")
@@ -60,7 +62,7 @@ public final class PluginController {
     @GetMapping("/{id}/comments")
     public @NotNull ResponseEntity<Collection<CommentDto>> showComments(@PathVariable long id) {
         Collection<CommentDto> comments = commentService.fetchByPluginId(id).stream()
-                .map(commentService::commentToDto)
+                .map(this::commentToDto)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(comments);
     }
@@ -84,5 +86,34 @@ public final class PluginController {
     public @NotNull ResponseEntity<Void> delete(@PathVariable long id) {
         pluginService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    public CommentDto commentToDto(@NotNull Comment comment) {
+        return CommentDto.builder()
+                .id(comment.getId())
+                .userId(comment.getUserId())
+                .pluginId(comment.getPluginId())
+                .content(comment.getContent())
+                .publicationTime(comment.getPublicationTime())
+                .responses(commentService.fetchResponsesById(comment.getId()).stream()
+                        .map(this::commentToDto)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public Comment dtoToComment(CommentDto dto) {
+        return dtoToComment(dto, false, false);
+    }
+
+    public Comment dtoToComment(@NotNull CommentDto dto, boolean includeId, boolean includeTime)
+            throws UserNotFoundException, PluginNotFoundException {
+        Comment.CommentBuilder builder = Comment.builder();
+        if (includeId) builder = builder.id(dto.getId());
+        if (includeTime) builder = builder.publicationTime(dto.getPublicationTime());
+        return builder
+                .userId(userService.fetchById(dto.getUserId()).getId())
+                .pluginId(pluginService.fetchById(dto.getPluginId()).getId())
+                .content(dto.getContent())
+                .build();
     }
 }

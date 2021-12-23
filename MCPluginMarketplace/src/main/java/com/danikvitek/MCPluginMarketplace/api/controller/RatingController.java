@@ -17,7 +17,7 @@ import java.net.URI;
 public final class RatingController {
     private final RatingService ratingService;
 
-    @GetMapping(params = {"plugin_id", "user_id"})
+    @GetMapping
     public @NotNull ResponseEntity<RatingDto> showForPlugin(@RequestParam(name = "plugin_id") long pluginId,
                                                             @RequestParam(name = "user_id") long userId) {
         return ResponseEntity.ok(ratingService.ratingToDto(ratingService.fetchById(pluginId, userId)));

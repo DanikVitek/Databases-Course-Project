@@ -4,9 +4,12 @@ import com.danikvitek.MCPluginMarketplace.api.dto.CommentDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.FullUserDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.Comment;
 import com.danikvitek.MCPluginMarketplace.service.CommentService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
+import com.danikvitek.MCPluginMarketplace.util.exception.PluginNotFoundException;
+import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
@@ -54,8 +57,21 @@ public final class UserController {
     @GetMapping("/{id}/comments")
     public @NotNull ResponseEntity<Set<CommentDto>> showComments(@PathVariable long id) {
         Set<CommentDto> comments = commentService.fetchByUserId(id).stream()
-                .map(commentService::commentToDto)
+                .map(this::commentToDto)
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(comments);
+    }
+
+    public CommentDto commentToDto(@NotNull Comment comment) {
+        return CommentDto.builder()
+                .id(comment.getId())
+                .userId(comment.getUserId())
+                .pluginId(comment.getPluginId())
+                .content(comment.getContent())
+                .publicationTime(comment.getPublicationTime())
+                .responses(commentService.fetchResponsesById(comment.getId()).stream()
+                        .map(this::commentToDto)
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

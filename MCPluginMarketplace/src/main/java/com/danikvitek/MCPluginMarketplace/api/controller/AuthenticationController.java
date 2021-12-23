@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import scala.util.Try;
 
 import javax.validation.Valid;
 
@@ -31,7 +32,11 @@ public final class AuthenticationController {
 
     @PostMapping("/login")
     public @NotNull ResponseEntity<JwtResponseDto> login(@Valid @RequestBody @NotNull JwtRequestDto jwtRequestDto) {
-        String username = jwtRequestDto.getLogin();
+        String login = jwtRequestDto.getLogin(); // login is either email or username
+        String username = Try.apply(() -> userService.fetchByUsername(login))
+                .orElse(() -> Try.apply(() -> userService.fetchByEmail(login)))
+                .get()
+                .getUsername();
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         username,

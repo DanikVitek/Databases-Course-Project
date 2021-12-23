@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegistrationDto implements Serializable {
+public final class RegistrationDto implements Serializable {
     @NotBlank
     @Length(min = 3, max = 50)
     private String username;

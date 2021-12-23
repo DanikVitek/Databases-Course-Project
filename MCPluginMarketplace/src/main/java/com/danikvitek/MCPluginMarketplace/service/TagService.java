@@ -32,15 +32,15 @@ public final class TagService {
                 .orElseThrow(() -> new IllegalStateException("Tag not found"));
     }
 
+    public Set<Tag> fetchByPlugin(long pluginId) throws IllegalArgumentException {
+        return tagRepository.showForPlugin(pluginId);
+    }
+    
     public @NotNull Tag create(@NotNull String title) throws TagAlreadyExistsException {
         Tag tag = Tag.builder().title(title).build();
         return Try.apply(() -> tagRepository.save(tag)).getOrElse(() -> {
             throw new TagAlreadyExistsException(fetchByTitle(title).getId());
         });
-    }
-    
-    public Set<Tag> fetchByPlugin(long pluginId) throws IllegalArgumentException {
-        return tagRepository.showForPlugin(pluginId);
     }
 
     public void delete(long id) {

@@ -38,8 +38,10 @@ public final class PluginDto implements Serializable {
     @Builder.Default
     private BigDecimal price = BigDecimal.valueOf(0);
 
+    private Double rating;
+    
     @Builder.Default
-    private Double rating = 0d;
+    private long ratingAmount = 0L;
     
     private Set<String> authors;
     

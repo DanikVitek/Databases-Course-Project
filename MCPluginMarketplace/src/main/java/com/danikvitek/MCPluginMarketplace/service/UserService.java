@@ -40,7 +40,7 @@ public final class UserService {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    private User fetchByEmail(String email) throws UserNotFoundException {
+    public User fetchByEmail(String email) throws UserNotFoundException {
         return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 

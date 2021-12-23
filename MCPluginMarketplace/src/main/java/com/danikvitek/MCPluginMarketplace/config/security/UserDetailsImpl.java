@@ -1,6 +1,8 @@
 package com.danikvitek.MCPluginMarketplace.config.security;
 
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
+import com.danikvitek.MCPluginMarketplace.data.repository.BannedUserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,13 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Set;
 
-public class UserPrincipal implements UserDetails {
+@RequiredArgsConstructor
+public final class UserDetailsImpl implements UserDetails {
 
     private final User user;
-
-    public UserPrincipal(User user) {
-        this.user = user;
-    }
+    private final BannedUserRepository bannedUserRepository;
 
     public User getUser() {
         return user;
@@ -43,7 +43,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !bannedUserRepository.existsBannedUserByUserId(user.getId());
     }
 
     @Override

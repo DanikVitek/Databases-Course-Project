@@ -4,6 +4,7 @@ import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtAuthenticationE
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtConfigurer;
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProcessor;
 import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProperties;
+import com.danikvitek.MCPluginMarketplace.data.repository.BannedUserRepository;
 import com.danikvitek.MCPluginMarketplace.util.Tuple2;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -33,10 +34,11 @@ import java.util.concurrent.atomic.AtomicReference;
 @Configuration
 @EnableWebSecurity(debug = true)
 @AllArgsConstructor(onConstructor_ = { @Autowired })
-public class SecurityConfig extends WebSecurityConfigurerAdapter implements ApplicationContextAware {
+public final class SecurityConfig extends WebSecurityConfigurerAdapter implements ApplicationContextAware {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtProperties jwtProperties;
+    private final BannedUserRepository bannedUserRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -56,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
 
     @Bean
     public JwtProcessor jwtTokenProvider() {
-        return new JwtProcessor(userDetailsService, jwtProperties);
+        return new JwtProcessor(userDetailsService, jwtProperties, bannedUserRepository);
     }
 
     @Override
@@ -95,9 +97,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
                 new Tuple2<>(HttpMethod.GET, "/users"),
                 new Tuple2<>(HttpMethod.GET, "/users/{id}")
         );
-        AtomicReference<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> expressionInterceptUrlRegistry = new AtomicReference<>(http
+        AtomicReference<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry>
+                expressionInterceptUrlRegistry = new AtomicReference<>(http
                 .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)

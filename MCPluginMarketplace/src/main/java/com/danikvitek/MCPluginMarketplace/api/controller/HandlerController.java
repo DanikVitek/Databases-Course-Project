@@ -26,7 +26,8 @@ public final class HandlerController {
             CategoryNotFoundException.class,
             TagNotFoundException.class,
             CommentNotFoundException.class,
-            PluginRatingNotFoundException.class
+            PluginRatingNotFoundException.class,
+            UserIsNotBannedException.class
     })
     public @NotNull ResponseEntity<ErrorDto> handleNotFoundException(@NotNull RuntimeException e,
                                                                      WebRequest request) {
@@ -43,7 +44,9 @@ public final class HandlerController {
             TagAlreadyExistsException.class,
             AuthorsSetIsEmptyException.class,
             UserAlreadyExistsException.class,
-            IllegalArgumentException.class
+            NoTokenHeaderException.class,
+            IllegalArgumentException.class,
+            NumberFormatException.class
     })
     public @NotNull ResponseEntity<ErrorDto> handleBadRequestException(@NotNull RuntimeException e,
                                                                        WebRequest request) {
@@ -53,7 +56,7 @@ public final class HandlerController {
                 .build();
         return ResponseEntity.badRequest().body(error);
     }
-
+    
     @ExceptionHandler(ConstraintViolationException.class)
     public @NotNull ResponseEntity<Set<ErrorDto>> handleValidationException(@NotNull ConstraintViolationException e,
                                                                             WebRequest request) {

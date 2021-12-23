@@ -1,7 +1,8 @@
 package com.danikvitek.MCPluginMarketplace.config.security.jwt;
 
-import com.danikvitek.MCPluginMarketplace.config.security.UserPrincipal;
+import com.danikvitek.MCPluginMarketplace.config.security.UserDetailsImpl;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
+import com.danikvitek.MCPluginMarketplace.data.repository.BannedUserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -22,15 +23,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 public class JwtProcessor {
-
     private final JwtProperties properties;
     private final String secret;
     private final UserDetailsService userDetailsService;
+    private final BannedUserRepository bannedUserRepository;
 
     @Autowired
     public JwtProcessor(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
-                        @NotNull JwtProperties properties) {
+                        @NotNull JwtProperties properties,
+                        BannedUserRepository bannedUserRepository) {
         this.userDetailsService = userDetailsService;
+        this.bannedUserRepository = bannedUserRepository;
         this.properties = properties;
         this.secret = getBase64EncodedSecretKey(properties.getSecret());
     }
@@ -39,8 +42,11 @@ public class JwtProcessor {
         return Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+    
     public String createJwt(String username, GrantedAuthority authority) {
-
         Claims claims = createClaims(username, authority);
 
         Date now = new Date();
@@ -70,8 +76,11 @@ public class JwtProcessor {
                 .compact();
     }
 
-    Authentication getAuthentication(String jwt) {
-        UserDetails userDetails = new UserPrincipal(User.builder().username(getUsername(jwt)).build());
+    @NotNull Authentication getAuthentication(String jwt) {
+        UserDetails userDetails = new UserDetailsImpl(
+                User.builder().username(getUsername(jwt)).build(),
+                bannedUserRepository
+        );
         return new UsernamePasswordAuthenticationToken(userDetails, "", getAuthorities(jwt));
     }
 
@@ -83,7 +92,7 @@ public class JwtProcessor {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(jwt);
     }
 
-    String getJwt(@NotNull HttpServletRequest request) {
+    @NotNull String getJwt(@NotNull HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);

@@ -57,11 +57,6 @@ public final class PluginService {
         else throw new IllegalArgumentException("User id must be >= 1");
     }
 
-    public double fetchRating(long id) throws PluginNotFoundException {
-        Plugin plugin = fetchById(id);
-        return pluginRatingRepository.getByPluginId(plugin.getId()).orElse(0D);
-    }
-
     public @NotNull Plugin create(@NotNull PluginDto pluginDto)
             throws AuthorsSetIsEmptyException, CategoryNotFoundException, 
                    PluginAlreadyExistsException, UserNotFoundException {
@@ -187,7 +182,8 @@ public final class PluginService {
                 .tags(tagService.fetchByPlugin(plugin.getId()).stream()
                         .map(Tag::getTitle)
                         .collect(Collectors.toSet()))
-                .rating(fetchRating(plugin.getId()))
+                .rating(pluginRatingRepository.getAvgByPluginId(plugin.getId()).orElse(null))
+                .ratingAmount(pluginRatingRepository.getCountByPluginId(plugin.getId()))
                 .build();
     }
 

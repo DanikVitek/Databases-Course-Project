@@ -3,6 +3,9 @@ package com.danikvitek.MCPluginMarketplace.data.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.sql.Timestamp;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,8 +19,12 @@ public class BannedUser {
     @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
 
+    @NotBlank
     @Column(name = "reason", length = 200)
     private String reason;
+
+    @Column(name = "ban_time", nullable = false, updatable = false)
+    private Timestamp banTime;
 
     @Override
     public boolean equals(Object o) {
@@ -26,8 +33,8 @@ public class BannedUser {
 
         BannedUser that = (BannedUser) o;
 
-        if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
-        if (reason != null ? !reason.equals(that.reason) : that.reason != null) return false;
+        if (!Objects.equals(userId, that.userId)) return false;
+        if (!Objects.equals(reason, that.reason)) return false;
 
         return true;
     }

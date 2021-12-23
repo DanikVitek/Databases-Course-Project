@@ -48,18 +48,4 @@ public final class CategoryService {
         return categoryRepository.findByTitle(title)
                 .orElseThrow(CategoryNotFoundException::new);
     }
-    
-    public CategoryDto categoryToDto(@NotNull Category category) {
-        return CategoryDto.builder()
-                .id(category.getId())
-                .title(category.getTitle())
-                .build();
-    }
-    
-    public Category dtoToCategory(@NotNull CategoryDto dto) {
-        return Category.builder()
-                .id(dto.getId())
-                .title(dto.getTitle())
-                .build();
-    }
 }
