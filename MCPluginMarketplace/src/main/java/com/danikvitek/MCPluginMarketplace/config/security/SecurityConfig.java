@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Configuration
 @EnableWebSecurity(debug = true)
 @AllArgsConstructor(onConstructor_ = { @Autowired })
-public final class SecurityConfig extends WebSecurityConfigurerAdapter implements ApplicationContextAware {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements ApplicationContextAware {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtProperties jwtProperties;

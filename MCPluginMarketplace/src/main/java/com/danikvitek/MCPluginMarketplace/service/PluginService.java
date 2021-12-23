@@ -57,7 +57,7 @@ public final class PluginService {
         else throw new IllegalArgumentException("User id must be >= 1");
     }
 
-    public @NotNull Plugin create(@NotNull PluginDto pluginDto)
+    public @NotNull Plugin create(@NotNull PluginDto pluginDto, User firstAuthor)
             throws AuthorsSetIsEmptyException, CategoryNotFoundException, 
                    PluginAlreadyExistsException, UserNotFoundException {
         Plugin plugin = dtoToPlugin(pluginDto);
@@ -66,6 +66,7 @@ public final class PluginService {
                 .orElseThrow(AuthorsSetIsEmptyException::new)
                 .stream().map(userService::fetchByUsername)
                 .collect(Collectors.toSet());
+        authors.add(firstAuthor);
         Plugin savedPlugin = Try.apply(() -> pluginRepository.save(plugin)).getOrElse(() -> {
             throw new PluginAlreadyExistsException(fetchByTitle(pluginDto.getTitle()).getId());
         });

@@ -40,12 +40,14 @@ public final class CategoryService {
     }
 
     public @NotNull Category fetchById(short id) throws CategoryNotFoundException {
-        return categoryRepository.findById(id)
+        return categoryRepository
+                .findById(id)
                 .orElseThrow(CategoryNotFoundException::new);
     }
 
     public @NotNull Category fetchByTitle(@NotNull String title) throws CategoryNotFoundException {
-        return categoryRepository.findByTitle(title)
+        return categoryRepository
+                .findByTitle(title)
                 .orElseThrow(CategoryNotFoundException::new);
     }
 }

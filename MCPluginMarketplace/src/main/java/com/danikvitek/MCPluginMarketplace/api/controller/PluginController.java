@@ -3,8 +3,11 @@ package com.danikvitek.MCPluginMarketplace.api.controller;
 import com.danikvitek.MCPluginMarketplace.api.dto.CommentDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.PluginDto;
 import com.danikvitek.MCPluginMarketplace.api.dto.SimpleUserDto;
+import com.danikvitek.MCPluginMarketplace.config.security.UserDetailsImpl;
+import com.danikvitek.MCPluginMarketplace.config.security.jwt.JwtProcessor;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Comment;
 import com.danikvitek.MCPluginMarketplace.data.model.entity.Plugin;
+import com.danikvitek.MCPluginMarketplace.data.model.entity.User;
 import com.danikvitek.MCPluginMarketplace.service.CommentService;
 import com.danikvitek.MCPluginMarketplace.service.PluginService;
 import com.danikvitek.MCPluginMarketplace.service.UserService;
@@ -13,7 +16,10 @@ import com.danikvitek.MCPluginMarketplace.util.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,6 +37,8 @@ public final class PluginController {
     private final PluginService pluginService;
     private final UserService userService;
     private final CommentService commentService;
+    private final JwtProcessor jwtProcessor;
+    private final UserDetailsService userDetailsService;
 
     @GetMapping
     public @NotNull ResponseEntity<List<PluginDto>> index(@RequestParam(defaultValue = "0") int page,
@@ -68,10 +76,16 @@ public final class PluginController {
     }
     
     @PostMapping
-    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto) {
-        Plugin plugin = pluginService.create(pluginDto);
-        String location = String.format("/plugins/%d", plugin.getId());
-        return ResponseEntity.created(URI.create(location)).build();
+    public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PluginDto pluginDto,
+                                                @RequestHeader HttpHeaders headers) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) PackageObject.getInstance()
+                .getUserDetails(headers, jwtProcessor, userDetailsService);
+        if (PackageObject.getInstance().accountIsValid(userDetails)) {
+            User firstAuthor = userDetails.getUser();
+            Plugin plugin = pluginService.create(pluginDto, firstAuthor);
+            String location = String.format("/plugins/%d", plugin.getId());
+            return ResponseEntity.created(URI.create(location)).build();
+        } else throw new AuthenticationException("Invalid access") {};
     }
 
     @PatchMapping("/{id}")

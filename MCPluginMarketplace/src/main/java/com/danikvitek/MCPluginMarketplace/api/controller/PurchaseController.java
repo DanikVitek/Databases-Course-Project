@@ -16,10 +16,10 @@ import java.util.Collection;
 public final class PurchaseController {
     private final PurchaseService purchaseService;
 
-    @GetMapping(params = {"user_id"})
-    public @NotNull ResponseEntity<Collection<PurchaseDto>> showForUser(@RequestParam("user_id") long userId) {
-        return ResponseEntity.noContent().build(); // todo: implement
-    }
+//    @GetMapping(params = {"user_id"})
+//    public @NotNull ResponseEntity<Collection<PurchaseDto>> showForUser(@RequestParam("user_id") long userId) {
+//        return ResponseEntity.noContent().build(); // todo: implement
+//    }
 
     @PostMapping
     public @NotNull ResponseEntity<Void> create(@Valid @RequestBody PurchaseDto purchaseDto) {

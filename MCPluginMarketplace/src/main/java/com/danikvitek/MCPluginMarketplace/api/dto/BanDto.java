@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BanDto implements Serializable {
+public final class BanDto implements Serializable {
     @NotNull
     @Positive
     private Long userId;
