@@ -95,7 +95,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Appl
                 new Tuple2<>(HttpMethod.GET, "/categories"),
                 new Tuple2<>(HttpMethod.GET, "/categories/{id}"),
                 new Tuple2<>(HttpMethod.GET, "/users"),
-                new Tuple2<>(HttpMethod.GET, "/users/{id}")
+                new Tuple2<>(HttpMethod.GET, "/users/{id}"),
+                new Tuple2<>(HttpMethod.GET, "/plugins/{id}/comments")
         );
         AtomicReference<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry>
                 expressionInterceptUrlRegistry = new AtomicReference<>(http
